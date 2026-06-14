@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aventura Matemática
 
-## Getting Started
+Site de atividades de matemática para estudantes do 4º ano do ensino fundamental (9-10 anos).
 
-First, run the development server:
+A cada carregamento da página, 20 questões aleatórias são geradas nas categorias:
+
+- Adição
+- Subtração
+- Multiplicação
+- Divisão
+- Sequência numérica
+- Problemas contextualizados simples
+
+## Stack
+
+- Next.js 16 (App Router + TypeScript)
+- Tailwind CSS v4
+- shadcn/ui
+- Lucide React
+- canvas-confetti
+
+## Como rodar
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build de produção
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Funcionalidades
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 20 questões geradas aleatoriamente a cada carga da página
+- Correção em lote com botão "Verificar respostas"
+- Feedback visual verde/vermelho com resposta correta
+- Placar final
+- Botão "Novas questões"
+- Animação de celebração para 18+ acertos
+- Design responsivo e colorido para crianças
