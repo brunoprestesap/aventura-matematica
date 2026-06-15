@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Usuário autenticado via Google OAuth
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  // Liga atual do usuário (começa em bronze)
+  currentLeague LeagueTier @default(bronze)
+
+  // Ano escolar preferido (sincronizado do localStorage na primeira sessão autenticada)
+  grade         Int        @default(4) // 1–9
+
+  accounts      Account[]
+  sessions      Session[]
+  weeklyScores  WeeklyScore[]
+  leagueMemberships LeagueMember[]
+
+  @@map("users")
+}
+
+// NextAuth — tabelas obrigatórias para @auth/prisma-adapter
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Enum com as 10 ligas
+enum LeagueTier {
+  bronze
+  prata
+  ouro
+  safira
+  rubi
+  esmeralda
+  ametista
+  perola
+  obsidiana
+  diamante
+}
+
+// Grupo semanal de usuários competindo entre si
+model LeagueGroup {
+  id        String     @id @default(cuid())
+  tier      LeagueTier
+  grade     Int        // ano escolar do grupo (1–9)
+  weekStart DateTime   // segunda-feira 00:00 UTC da semana
+  createdAt DateTime   @default(now())
+
+  members   LeagueMember[]
+
+  @@index([tier, grade, weekStart])
+  @@map("league_groups")
+}
+
+// Membro de um grupo em uma semana específica
+model LeagueMember {
+  id          String      @id @default(cuid())
+  userId      String
+  groupId     String
+  xpWeekly    Int         @default(0) // XP acumulado nesta semana
+  finalRank   Int?        // preenchido pelo cron ao finalizar a semana
+  promoted    Boolean?    // preenchido pelo cron
+  demoted     Boolean?    // preenchido pelo cron
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group LeagueGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@map("league_members")
+}
+
+// Registro individual de cada sessão de quiz (para auditoria e cálculo de XP)
+model WeeklyScore {
+  id          String   @id @default(cuid())
+  userId      String
+  grade       Int
+  correct     Int      // acertos (0–20)
+  total       Int      // total de questões (sempre 20)
+  xpEarned    Int      // XP calculado pelo servidor
+  sessionDate DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sessionDate])
+  @@map("weekly_scores")
+}
