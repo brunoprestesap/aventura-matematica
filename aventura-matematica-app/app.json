@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Aventura Matemática",
+    "slug": "aventura-matematica",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "aventuramatematica",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#8B5CF6"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.aventuramatematica.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#8B5CF6"
+      },
+      "package": "br.com.aventuramatematica.app",
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#8B5CF6",
+          "image": "./assets/splash.png",
+          "imageWidth": 200
+        }
+      ]
+    ],
+    "extra": {
+      "webAppUrl": "https://aventura-matematica.vercel.app",
+      "router": {},
+      "eas": {
+        "projectId": "f542064c-a0f8-4ff5-af33-7c1f0a5efaa0"
+      }
+    },
+    "owner": "bruno.prestes"
+  }
+}

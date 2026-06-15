@@ -1,0 +1,89 @@
+# AGENTS.md — Aventura Matemática App
+
+Arquivo de referência para agentes de IA que trabalharem no app híbrido (Expo + WebView).
+
+## Visão geral
+
+Este diretório (`aventura-matematica-app/`) contém o **shell nativo** do app Aventura Matemática. Ele não reescreve a lógica do PWA: apenas carrega a web app publicada em `https://aventura-matematica.vercel.app` dentro de um `WebView`, com integrações nativas mínimas para:
+
+- Persistência de dados entre sessões (SecureStore ↔ localStorage).
+- Detecção de conectividade.
+- Controle de safe area, splash screen e status bar.
+- Navegação pelo botão físico de voltar no Android.
+
+## Stack
+
+| Tecnologia | Versão |
+|---|---|
+| Expo SDK | 55 |
+| React Native | 0.83.6 |
+| React | 19.2.7 |
+| Expo Router | v7 (pasta `src/app/`) |
+| react-native-webview | 13.16.0 |
+
+## Estrutura de pastas
+
+```
+src/
+  app/
+    _layout.tsx          # SafeAreaProvider + StatusBar + Stack
+    index.tsx            # Tela principal com WebViewBridge e OfflineBanner
+  components/
+    WebViewBridge.tsx    # WebView + bridge de localStorage
+    LoadingScreen.tsx    # Tela de carregamento
+    ErrorScreen.tsx      # Tela de erro com retry
+    OfflineBanner.tsx    # Banner quando offline
+  hooks/
+    useNetworkStatus.ts  # NetInfo wrapper
+    useWebViewStorage.ts # SecureStore wrapper para bridge
+```
+
+## Regras importantes
+
+1. **Não modifique o PWA a partir deste diretório.** O projeto Next.js fica na raiz (`../`).
+2. **Não use `SafeAreaView` do `react-native`.** Use `useSafeAreaInsets` de `react-native-safe-area-context`.
+3. **Não teste no Expo Go.** `react-native-webview` exige Development Build.
+4. **Não adicione `newArchEnabled` ao `app.json`.** A Legacy Architecture foi removida no React Native 0.82.
+5. **Instale dependências com `npx expo install <pacote>`**, nunca `npm install` direto.
+6. **Comentários em português brasileiro.**
+
+## Persistência
+
+As chaves sincronizadas entre SecureStore e localStorage do PWA são:
+
+- `aventura-matematica-grade`
+- `aventura-matematica-history`
+- `aventura-matematica-user-name`
+
+Essa sincronia é necessária principalmente no iOS, onde o WKWebView pode limpar o localStorage entre sessões de app.
+
+## Scripts úteis
+
+```bash
+# Verificar saúde do projeto
+npm run doctor
+
+# Iniciar metro (após instalar o development build)
+npm start
+
+# Builds
+npm run build:dev:android
+npm run build:dev:ios
+npm run build:preview:android
+npm run build:preview:ios
+npm run build:prod:android
+npm run build:prod:ios
+```
+
+## Notas sobre configurações
+
+- `edgeToEdgeEnabled` não está declarado em `app.json` porque o schema do Expo SDK 55 não aceita essa propriedade explicitamente; o edge-to-edge é habilitado por padrão em novos projetos do SDK 55. O padding de insets é controlado manualmente via `useSafeAreaInsets`.
+- O `projectId` do EAS em `app.json` ainda é um placeholder. Execute `eas init` para gerar o valor real.
+
+## Validação obrigatória
+
+Antes de considerar uma alteração finalizada:
+
+1. `npx expo-doctor` deve passar sem erros.
+2. `npx tsc --noEmit` deve passar sem erros.
+3. O script de bridge (`WebViewBridge.tsx`) deve terminar com `true;`.

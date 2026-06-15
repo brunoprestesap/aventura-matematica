@@ -1,0 +1,48 @@
+{
+  "name": "aventura-matematica-app",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "build:dev:android": "eas build --platform android --profile development",
+    "build:dev:ios": "eas build --platform ios --profile development",
+    "build:preview:android": "eas build --platform android --profile preview",
+    "build:preview:ios": "eas build --platform ios --profile preview",
+    "build:prod:android": "eas build --platform android --profile production",
+    "build:prod:ios": "eas build --platform ios --profile production",
+    "submit:android": "eas submit --platform android",
+    "submit:ios": "eas submit --platform ios",
+    "doctor": "npx expo-doctor"
+  },
+  "dependencies": {
+    "@react-native-community/netinfo": "11.5.2",
+    "expo": "~55.0.0",
+    "expo-constants": "~55.0.16",
+    "expo-dev-client": "~55.0.35",
+    "expo-linking": "~55.0.15",
+    "expo-router": "~55.0.0",
+    "expo-secure-store": "~55.0.0",
+    "expo-splash-screen": "~55.0.0",
+    "expo-status-bar": "~55.0.0",
+    "expo-system-ui": "~55.0.0",
+    "react": "19.2.7",
+    "react-native": "0.83.6",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.23.0",
+    "react-native-webview": "13.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.0",
+    "typescript": "~5.9.2"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react"
+      ]
+    }
+  }
+}
