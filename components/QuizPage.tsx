@@ -19,6 +19,7 @@ import {
 } from "@/lib/questions";
 import { GradeSelector } from "@/components/GradeSelector";
 import { HistoryPanel } from "@/components/HistoryPanel";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { NamePrompt } from "@/components/NamePrompt";
 import {
   readHistory,
@@ -273,6 +274,7 @@ export function QuizPage() {
                 Trocar
               </Button>
               <HistoryPanel />
+              <InstallPrompt />
             </div>
           </div>
         </header>
