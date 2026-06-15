@@ -2,7 +2,6 @@ import {
   generateQuestions,
   QuestionCategory,
   GRADES,
-  Grade,
   getGradeConfig,
 } from "../lib/questions";
 
