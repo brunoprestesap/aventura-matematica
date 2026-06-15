@@ -30,9 +30,9 @@ export const QuestionCard = memo(
     return (
       <article
         className={cn(
-          "relative flex flex-col gap-3 rounded-2xl border-2 bg-white p-4 shadow-sm transition-all duration-200 sm:gap-4 sm:rounded-3xl sm:p-5",
+          "relative flex min-h-full flex-col gap-3 rounded-2xl border-2 bg-white p-4 shadow-sm transition-all duration-200 sm:gap-4 sm:rounded-3xl sm:p-5",
           config.border,
-          isIdle && "hover:shadow-md hover:-translate-y-0.5",
+          isIdle && "hover:-translate-y-0.5 hover:shadow-md",
           isCorrect &&
             "border-green-400 bg-green-50 ring-2 ring-green-300/60",
           isIncorrect && "border-red-400 bg-red-50 ring-2 ring-red-300/60"
@@ -42,7 +42,7 @@ export const QuestionCard = memo(
         <div className="flex items-start justify-between gap-2">
           <Badge
             className={cn(
-              "rounded-full border-transparent px-2.5 py-1 text-xs font-bold sm:px-3 sm:text-sm",
+              "shrink-0 rounded-full border-transparent px-2 py-0.5 text-[10px] font-bold sm:px-2.5 sm:py-1 sm:text-xs",
               config.bg,
               config.color
             )}
@@ -53,16 +53,16 @@ export const QuestionCard = memo(
             {config.label}
           </Badge>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <span
-              className="text-xs font-bold text-slate-400 sm:text-sm"
+              className="text-[10px] font-bold text-slate-400 sm:text-xs"
               aria-label={`Questão ${index}`}
             >
               #{index}
             </span>
             {isCorrect && (
               <span
-                className="animate-pop text-2xl text-green-500 sm:text-3xl"
+                className="animate-pop text-xl text-green-500 sm:text-2xl"
                 aria-label="Correta"
                 role="img"
               >
@@ -71,7 +71,7 @@ export const QuestionCard = memo(
             )}
             {isIncorrect && (
               <span
-                className="animate-pop text-2xl text-red-500 sm:text-3xl"
+                className="animate-pop text-xl text-red-500 sm:text-2xl"
                 aria-label="Incorreta"
                 role="img"
               >
@@ -82,7 +82,7 @@ export const QuestionCard = memo(
         </div>
 
         {/* Enunciado */}
-        <p className="flex-1 text-lg font-semibold leading-snug text-slate-800 sm:text-xl md:text-2xl md:leading-relaxed">
+        <p className="flex-1 text-base font-semibold leading-snug text-slate-800 sm:text-lg md:text-xl md:leading-relaxed">
           {question.statement}
         </p>
 
@@ -112,8 +112,8 @@ export const QuestionCard = memo(
           />
 
           {isIncorrect && (
-            <div className="animate-pop rounded-xl bg-red-100 p-2.5 sm:p-3">
-              <p className="text-sm font-bold text-red-700 sm:text-base">
+            <div className="animate-pop rounded-xl bg-red-100 p-2 sm:p-3">
+              <p className="text-sm font-bold text-red-700">
                 Resposta certa: {question.answer}
               </p>
               {question.displayAnswer && (

@@ -21,15 +21,15 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col items-center justify-center px-6 py-10 sm:px-8 sm:py-14">
-      <div className="w-full max-w-md rounded-[2rem] bg-white p-7 shadow-xl shadow-purple-200/60 sm:p-10">
-        <div className="mb-8 text-center sm:mb-10">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-sm font-bold text-purple-700 shadow-sm sm:mb-5 sm:text-base">
+    <div className="flex min-h-full w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 md:px-8">
+      <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-xl shadow-purple-200/60 sm:rounded-[2rem] sm:p-8 md:p-10">
+        <div className="mb-6 text-center sm:mb-8">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-sm font-bold text-purple-700 shadow-sm sm:mb-4 sm:text-base">
             <Smile className="size-5" aria-hidden="true" />
             <span>Ei, pequeno matemático!</span>
           </div>
 
-          <h2 className="mb-3 text-2xl font-black leading-tight text-slate-800 sm:text-3xl md:text-4xl">
+          <h2 className="mb-2 text-2xl font-black leading-tight text-slate-800 sm:text-3xl md:text-4xl">
             Como devo te chamar? 🚀
           </h2>
 
@@ -39,7 +39,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="mb-5 sm:mb-6">
+          <div className="mb-4 sm:mb-6">
             <label
               htmlFor="child-name"
               className="mb-2 block text-left text-sm font-bold text-slate-700 sm:text-base"
@@ -59,7 +59,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
             />
           </div>
 
-          <div className="mb-6 sm:mb-8">
+          <div className="mb-5 sm:mb-6">
             <Button
               type="submit"
               size="lg"
@@ -72,7 +72,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
           </div>
 
           <div className="flex items-center justify-center gap-2 text-center text-xs font-medium text-slate-500 sm:text-sm">
-            <Star className="size-4 text-amber-400" aria-hidden="true" />
+            <Star className="size-4 shrink-0 text-amber-400" aria-hidden="true" />
             <span>Seu nome fica guardado neste aparelho</span>
           </div>
         </form>

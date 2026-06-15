@@ -88,13 +88,13 @@ export function Celebration({ score, total, trigger }: CelebrationProps) {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center overflow-hidden px-4"
+      className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center overflow-hidden px-3 sm:px-4"
       role="status"
       aria-live="polite"
     >
       <div
         className={cn(
-          "mt-16 max-w-[90vw] rounded-full px-5 py-3 text-center text-lg font-black text-yellow-900 shadow-2xl ring-4 ring-yellow-200/80 sm:mt-20 sm:px-8 sm:py-4 sm:text-2xl md:text-3xl lg:text-4xl",
+          "mt-12 max-w-[92vw] rounded-full px-4 py-2.5 text-center text-sm font-black text-yellow-900 shadow-2xl ring-4 ring-yellow-200/80 sm:mt-16 sm:px-6 sm:py-3 sm:text-lg md:mt-20 md:px-8 md:py-4 md:text-2xl lg:text-3xl",
           !prefersReducedMotion && "animate-pop"
         )}
         style={{ background: "linear-gradient(135deg, #fde047, #facc15)" }}
