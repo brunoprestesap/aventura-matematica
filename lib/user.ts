@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-const USER_NAME_KEY = "aventura-matematica-user-name";
+export const USER_NAME_KEY = "aventura-matematica-user-name";
 
 export function readUserName(): string | null {
   if (typeof window === "undefined") return null;

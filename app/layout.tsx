@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,11 +35,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html
       lang="pt-BR"
@@ -47,7 +51,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
       <body className="min-h-full flex flex-col font-sans">
-        {children}
+        <SessionProvider session={session}>
+          {children}
+        </SessionProvider>
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {

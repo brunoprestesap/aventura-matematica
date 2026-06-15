@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { Grade } from "./questions";
 
-const HISTORY_KEY = "aventura-matematica-history";
-const HISTORY_VERSION = 1;
+export const HISTORY_KEY = "aventura-matematica-history";
+export const HISTORY_VERSION = 1;
 
 const EMPTY_HISTORY: ActivityHistory = { version: HISTORY_VERSION, activities: [] };
 
@@ -23,7 +23,7 @@ function makeId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function parseHistory(raw: string): ActivityHistory {
+export function parseHistory(raw: string): ActivityHistory {
   try {
     const parsed = JSON.parse(raw) as ActivityHistory;
     if (

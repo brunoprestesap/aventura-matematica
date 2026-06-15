@@ -38,7 +38,19 @@ import {
   Sparkles,
   Trophy,
   GraduationCap,
+  X,
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const LeaguePanel = dynamic(
+  () => import("@/components/LeaguePanel").then((mod) => mod.LeaguePanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-4 text-sm text-muted-foreground">Carregando liga...</div>
+    ),
+  }
+);
 
 const STORAGE_KEY = "aventura-matematica-grade";
 
@@ -92,6 +104,7 @@ export function QuizPage() {
   const [questionKey, setQuestionKey] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [leagueOpen, setLeagueOpen] = useState(false);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const selectedGrade = isSelecting ? null : storedGrade;
@@ -198,7 +211,26 @@ export function QuizPage() {
       )
     );
     notifyHistoryChanged();
-  }, [selectedGrade, submitted, score, questions.length]);
+
+    // Envia resultado para a liga em background (não bloqueia a UI)
+    const answersArray = questions.map(
+      (q) => Number(answers[q.id]?.trim()) === q.answer
+    );
+
+    if (answersArray.length === 20) {
+      fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          grade: selectedGrade,
+          correct: score,
+          answers: answersArray,
+        }),
+      }).catch(() => {
+        // Falha silenciosa — a liga não deve bloquear o fluxo do quiz
+      });
+    }
+  }, [selectedGrade, submitted, score, questions, answers]);
 
   const allAnswered = answeredCount === questions.length;
 
@@ -274,6 +306,19 @@ export function QuizPage() {
                 Trocar
               </Button>
               <HistoryPanel />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setLeagueOpen(true)}
+                className="rounded-full border-purple-200 px-3 text-xs text-purple-700 hover:bg-purple-50 hover:text-purple-800 sm:px-4 sm:text-sm"
+              >
+                <Trophy
+                  className="mr-1 size-3.5 sm:size-4"
+                  aria-hidden="true"
+                />
+                Liga
+              </Button>
               <InstallPrompt />
             </div>
           </div>
@@ -382,6 +427,44 @@ export function QuizPage() {
             )}
           </div>
         </div>
+
+        {/* Modal da Liga */}
+        {leagueOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+            onClick={() => setLeagueOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Liga semanal"
+          >
+            <div
+              className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 bg-purple-50 p-4">
+                <div className="flex items-center gap-2 text-purple-700">
+                  <Trophy className="size-5" aria-hidden="true" />
+                  <h2 className="text-base font-black sm:text-lg">
+                    Liga semanal
+                  </h2>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setLeagueOpen(false)}
+                  className="rounded-full text-slate-500 hover:bg-purple-100 hover:text-purple-700"
+                >
+                  <X className="size-5" aria-hidden="true" />
+                  <span className="sr-only">Fechar</span>
+                </Button>
+              </div>
+              <div className="overflow-y-auto p-3 sm:p-4">
+                <LeaguePanel />
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

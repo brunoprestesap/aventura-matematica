@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Smartphone,
@@ -24,7 +24,6 @@ function detectPlatform(): DetectedPlatform {
   const ua = navigator.userAgent.toLowerCase();
   const isIOS = /iphone|ipad|ipod/.test(ua);
   const isAndroid = /android/.test(ua);
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   const isSamsung = /samsungbrowser/.test(ua);
   const isFirefox = /firefox/.test(ua);
 
@@ -134,18 +133,15 @@ function IOSIllustration() {
 export function InstallPrompt() {
   const [open, setOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [platform, setPlatform] = useState<DetectedPlatform>({ os: "other", browser: "other" });
-  const [selectedOS, setSelectedOS] = useState<OS>("android");
-  const [alreadyInstalled, setAlreadyInstalled] = useState(false);
+  const platform = useMemo(() => detectPlatform(), []);
+  const [selectedOS, setSelectedOS] = useState<OS>(() =>
+    platform.os === "ios" ? "ios" : "android"
+  );
+  const alreadyInstalled = useMemo(() => isStandalone(), []);
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
   const [showNativeInstall, setShowNativeInstall] = useState(false);
 
   useEffect(() => {
-    const detected = detectPlatform();
-    setPlatform(detected);
-    setSelectedOS(detected.os === "ios" ? "ios" : "android");
-    setAlreadyInstalled(isStandalone());
-
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -157,19 +153,18 @@ export function InstallPrompt() {
   }, []);
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      const timer = setTimeout(() => setIsVisible(true), 10);
-      return () => clearTimeout(timer);
-    } else {
+    if (!open) return;
+    document.body.style.overflow = "hidden";
+    const timer = setTimeout(() => setIsVisible(true), 10);
+    return () => {
+      clearTimeout(timer);
       document.body.style.overflow = "";
-      setIsVisible(false);
-    }
+    };
   }, [open]);
 
   const handleClose = useCallback(() => {
     setIsVisible(false);
-    setTimeout(() => setOpen(false), 250);
+    window.setTimeout(() => setOpen(false), 250);
   }, []);
 
   const handleNativeInstall = useCallback(async () => {

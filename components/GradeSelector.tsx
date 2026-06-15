@@ -34,6 +34,7 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
             <button
               key={grade}
               type="button"
+              aria-pressed={isSelected}
               onClick={() => onSelect(grade)}
               className={cn(
                 "group relative flex min-h-[88px] flex-col items-center justify-center rounded-2xl border-2 bg-white p-2 text-center shadow-sm transition-all duration-200 sm:min-h-[120px] sm:rounded-3xl sm:p-4 md:p-5",
