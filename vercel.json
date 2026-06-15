@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/liga",
+      "schedule": "0 4 * * 1"
+    }
+  ]
+}
