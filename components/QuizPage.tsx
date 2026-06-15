@@ -1,70 +1,128 @@
 "use client";
 
-import { useMemo, useState, useRef, useCallback, useEffect } from "react";
+import {
+  useMemo,
+  useState,
+  useRef,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
 import { Button } from "@/components/ui/button";
-import { QuestionCard, AnswerStatus } from "@/components/QuestionCard";
+import { AnswerStatus } from "@/components/QuestionCard";
+import { QuestionCardItem } from "@/components/QuestionCardItem";
 import { Celebration } from "@/components/Celebration";
-import { generateQuestions, Question, Grade, getGradeConfig } from "@/lib/questions";
+import {
+  generateQuestions,
+  Question,
+  Grade,
+  getGradeConfig,
+} from "@/lib/questions";
 import { GradeSelector } from "@/components/GradeSelector";
-import { RotateCcw, CheckCircle2, Sparkles, Trophy, GraduationCap } from "lucide-react";
+import { HistoryPanel } from "@/components/HistoryPanel";
+import { NamePrompt } from "@/components/NamePrompt";
+import {
+  readHistory,
+  writeHistory,
+  addActivity,
+  notifyHistoryChanged,
+} from "@/lib/history";
+import {
+  writeUserName,
+  notifyUserNameChanged,
+  useUserName,
+} from "@/lib/user";
+import {
+  RotateCcw,
+  CheckCircle2,
+  Sparkles,
+  Trophy,
+  GraduationCap,
+} from "lucide-react";
 
 const STORAGE_KEY = "aventura-matematica-grade";
 
-interface QuizPageProps {
-  defaultGrade?: Grade;
+function readStoredGrade(): Grade | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = Number(saved) as Grade;
+      if (parsed >= 1 && parsed <= 9) return parsed;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
 }
 
-export function QuizPage({ defaultGrade = 4 }: QuizPageProps) {
-  const [selectedGrade, setSelectedGrade] = useState<Grade | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
+function saveStoredGrade(grade: Grade) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, String(grade));
+  } catch {
+    // ignore
+  }
+  window.dispatchEvent(
+    new StorageEvent("storage", { key: STORAGE_KEY, newValue: String(grade) })
+  );
+}
+
+function subscribeToGrade(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === STORAGE_KEY) callback();
+  };
+  window.addEventListener("storage", handleStorage);
+  return () => window.removeEventListener("storage", handleStorage);
+}
+
+function useStoredGrade(): Grade | null {
+  return useSyncExternalStore(
+    subscribeToGrade,
+    readStoredGrade,
+    () => null
+  );
+}
+
+export function QuizPage() {
+  const storedGrade = useStoredGrade();
+  const userName = useUserName();
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [questionKey, setQuestionKey] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  // Hidrata o estado a partir do localStorage
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const parsed = saved ? (Number(saved) as Grade) : defaultGrade;
-      if (parsed >= 1 && parsed <= 9) {
-        setSelectedGrade(parsed);
-        setQuestions(generateQuestions(20, parsed));
-      } else {
-        setSelectedGrade(null);
-      }
-    } catch {
-      setSelectedGrade(defaultGrade);
-      setQuestions(generateQuestions(20, defaultGrade));
-    }
-  }, [defaultGrade]);
+  const selectedGrade = isSelecting ? null : storedGrade;
+
+  const questions = useMemo<Question[]>(() => {
+    if (selectedGrade === null) return [];
+    return generateQuestions(20, selectedGrade);
+    // questionKey é usado apenas para forçar a regeneração das questões
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGrade, questionKey]);
+
+  const handleSetName = useCallback((name: string) => {
+    writeUserName(name);
+    notifyUserNameChanged();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const handleSelectGrade = useCallback((grade: Grade) => {
-    setSelectedGrade(grade);
-    setQuestions(generateQuestions(20, grade));
+    saveStoredGrade(grade);
+    setIsSelecting(false);
     setAnswers({});
     setSubmitted(false);
-    try {
-      localStorage.setItem(STORAGE_KEY, String(grade));
-    } catch {
-      // ignore
-    }
+    setQuestionKey(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleNewQuestions = useCallback(() => {
-    if (!selectedGrade) return;
-    setQuestions(generateQuestions(20, selectedGrade));
     setAnswers({});
     setSubmitted(false);
+    setQuestionKey((k) => k + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [selectedGrade]);
-
-  const answeredCount = useMemo(
-    () => questions.filter((q) => answers[q.id]?.trim() !== "").length,
-    [answers, questions]
-  );
+  }, []);
 
   const statuses = useMemo<Record<string, AnswerStatus>>(() => {
     const map: Record<string, AnswerStatus> = {};
@@ -85,10 +143,12 @@ export function QuizPage({ defaultGrade = 4 }: QuizPageProps) {
     return map;
   }, [answers, questions, submitted]);
 
-  const score = useMemo(
-    () => Object.values(statuses).filter((s) => s === "correct").length,
-    [statuses]
-  );
+  // Com até 20 itens, o custo dessas derivações é desprezível;
+  // evitamos useMemo para não pagar o overhead de hooks.
+  const answeredCount = questions.filter(
+    (q) => answers[q.id]?.trim() !== ""
+  ).length;
+  const score = Object.values(statuses).filter((s) => s === "correct").length;
 
   const focusFirstUnanswered = useCallback(() => {
     const firstUnanswered = questions.find((q) => !answers[q.id]?.trim());
@@ -101,18 +161,61 @@ export function QuizPage({ defaultGrade = 4 }: QuizPageProps) {
     }
   }, [answers, questions]);
 
-  const handleVerify = () => {
+  const handleAnswerChange = useCallback(
+    (questionId: string, value: string) => {
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: value.replace(/[^0-9]/g, ""),
+      }));
+    },
+    []
+  );
+
+  const handleSetInputRef = useCallback(
+    (el: HTMLInputElement | null, questionId: string) => {
+      inputRefs.current[questionId] = el;
+    },
+    []
+  );
+
+  const handleVerify = useCallback(() => {
+    if (!selectedGrade || submitted) return;
+
+    // Feedback imediato para o usuário; persistência do histórico
+    // acontece localmente sem round-trip de rede.
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+
+    const history = readHistory();
+    writeHistory(
+      addActivity(
+        history,
+        selectedGrade,
+        score,
+        questions.length,
+        new Date().toISOString()
+      )
+    );
+    notifyHistoryChanged();
+  }, [selectedGrade, submitted, score, questions.length]);
 
   const allAnswered = answeredCount === questions.length;
 
-  // Evita flash de conteúdo antes da hidratação
-  if (!mounted || selectedGrade === null) {
+  if (userName === null) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-50 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
-        <GradeSelector onSelect={handleSelectGrade} />
+        <NamePrompt onSubmit={handleSetName} />
+      </div>
+    );
+  }
+
+  if (selectedGrade === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-50 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
+        <GradeSelector
+          onSelect={handleSelectGrade}
+          currentGrade={isSelecting ? storedGrade : null}
+        />
       </div>
     );
   }
@@ -157,12 +260,13 @@ export function QuizPage({ defaultGrade = 4 }: QuizPageProps) {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setSelectedGrade(null)}
+              onClick={() => setIsSelecting(true)}
               className="rounded-full border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800"
             >
               <GraduationCap className="mr-1 size-4" aria-hidden="true" />
               Trocar ano
             </Button>
+            <HistoryPanel />
           </div>
         </header>
 
@@ -212,22 +316,15 @@ export function QuizPage({ defaultGrade = 4 }: QuizPageProps) {
         {/* Grid de questões */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
           {questions.map((question, index) => (
-            <QuestionCard
+            <QuestionCardItem
               key={question.id}
               question={question}
-              index={index + 1}
+              index={index}
               value={answers[question.id] ?? ""}
-              onChange={(value) =>
-                setAnswers((prev) => ({
-                  ...prev,
-                  [question.id]: value.replace(/[^0-9]/g, ""),
-                }))
-              }
               status={statuses[question.id] ?? "idle"}
               disabled={submitted}
-              ref={(el) => {
-                inputRefs.current[question.id] = el;
-              }}
+              onChange={handleAnswerChange}
+              setInputRef={handleSetInputRef}
             />
           ))}
         </div>

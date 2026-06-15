@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import confetti from "canvas-confetti";
+import { useEffect, useMemo, useRef } from "react";
+import type { Options as ConfettiOptions } from "canvas-confetti";
 
 interface CelebrationProps {
   score: number;
@@ -9,11 +9,28 @@ interface CelebrationProps {
   trigger: boolean;
 }
 
+// Inicia o carregamento sob demanda assim que o módulo é avaliado no cliente,
+// mas só executa quando o gatilho for acionado.
+const confettiPromise =
+  typeof window !== "undefined" ? import("canvas-confetti") : null;
+
+const COLORS = [
+  "#ef4444",
+  "#3b82f6",
+  "#22c55e",
+  "#f59e0b",
+  "#a855f7",
+  "#ec4899",
+];
+
 export function Celebration({ score, total, trigger }: CelebrationProps) {
   const fired = useRef(false);
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReducedMotion = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    []
+  );
 
   useEffect(() => {
     if (!trigger || fired.current) return;
@@ -23,33 +40,29 @@ export function Celebration({ score, total, trigger }: CelebrationProps) {
 
     const duration = 3_000;
     const end = Date.now() + duration;
-    const colors = [
-      "#ef4444",
-      "#3b82f6",
-      "#22c55e",
-      "#f59e0b",
-      "#a855f7",
-      "#ec4899",
-    ];
+
+    const baseOptions: ConfettiOptions = {
+      colors: COLORS,
+      scalar: 1.2,
+      disableForReducedMotion: true,
+    };
 
     const frame = () => {
-      confetti({
-        particleCount: 4,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors,
-        scalar: 1.2,
-        disableForReducedMotion: true,
-      });
-      confetti({
-        particleCount: 4,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors,
-        scalar: 1.2,
-        disableForReducedMotion: true,
+      confettiPromise?.then((confetti) => {
+        confetti.default({
+          ...baseOptions,
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+        });
+        confetti.default({
+          ...baseOptions,
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+        });
       });
 
       if (Date.now() < end) {
@@ -58,13 +71,14 @@ export function Celebration({ score, total, trigger }: CelebrationProps) {
     };
 
     // Explosão inicial
-    confetti({
-      particleCount: 100,
-      spread: 100,
-      origin: { y: 0.6 },
-      colors,
-      scalar: 1.4,
-      disableForReducedMotion: true,
+    confettiPromise?.then((confetti) => {
+      confetti.default({
+        ...baseOptions,
+        particleCount: 100,
+        spread: 100,
+        origin: { y: 0.6 },
+        scalar: 1.4,
+      });
     });
 
     frame();

@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, memo } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryConfig, Question } from "@/lib/questions";
@@ -17,8 +17,8 @@ interface QuestionCardProps {
   disabled?: boolean;
 }
 
-export const QuestionCard = forwardRef<HTMLInputElement, QuestionCardProps>(
-  function QuestionCard(
+export const QuestionCard = memo(
+  forwardRef<HTMLInputElement, QuestionCardProps>(function QuestionCard(
     { question, index, value, onChange, status, disabled = false },
     ref
   ) {
@@ -126,5 +126,7 @@ export const QuestionCard = forwardRef<HTMLInputElement, QuestionCardProps>(
         </div>
       </article>
     );
-  }
+  })
 );
+
+QuestionCard.displayName = "QuestionCard";
