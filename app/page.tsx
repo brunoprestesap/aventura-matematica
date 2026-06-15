@@ -1,5 +1,5 @@
-import { QuizPage } from "@/components/QuizPage";
+import { QuizPageLoader } from "@/components/QuizPageLoader";
 
 export default function Home() {
-  return <QuizPage />;
+  return <QuizPageLoader />;
 }
