@@ -116,6 +116,9 @@ export const QuestionCard = memo(
               <p className="text-sm font-bold text-red-700">
                 Resposta certa: {question.answer}
               </p>
+              <p className="mt-0.5 text-xs font-medium text-red-600 sm:text-sm">
+                {question.explanation}
+              </p>
               {question.displayAnswer && (
                 <p className="mt-0.5 text-xs font-medium text-red-500 sm:text-sm">
                   Sequência completa: {question.displayAnswer}

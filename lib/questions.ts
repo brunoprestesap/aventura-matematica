@@ -13,6 +13,7 @@ export interface Question {
   category: QuestionCategory;
   statement: string;
   answer: number;
+  explanation: string;
   displayAnswer?: string;
 }
 
@@ -231,6 +232,7 @@ function generateAddition(grade: Grade): Question {
     category: "addition",
     statement: `Quanto é ${a} + ${b}?`,
     answer: a + b,
+    explanation: `${a} + ${b} = ${a + b}`,
   };
 }
 
@@ -243,6 +245,7 @@ function generateSubtraction(grade: Grade): Question {
     category: "subtraction",
     statement: `Quanto é ${a} − ${b}?`,
     answer: a - b,
+    explanation: `${a} − ${b} = ${a - b}`,
   };
 }
 
@@ -255,6 +258,7 @@ function generateMultiplication(grade: Grade): Question {
     category: "multiplication",
     statement: `Quanto é ${a} × ${b}?`,
     answer: a * b,
+    explanation: `${a} × ${b} = ${a * b}`,
   };
 }
 
@@ -268,6 +272,7 @@ function generateDivision(grade: Grade): Question {
     category: "division",
     statement: `Quanto é ${dividend} ÷ ${divisor}?`,
     answer,
+    explanation: `${dividend} ÷ ${divisor} = ${answer}`,
   };
 }
 
@@ -285,14 +290,16 @@ function generateSequence(grade: Grade): Question {
   const display = sequence
     .map((n, i) => (i === missingIndex ? "___" : String(n)))
     .join(", ");
+  const displayAnswer = sequence
+    .map((n, i) => (i === missingIndex ? String(answer) : String(n)))
+    .join(", ");
   return {
     id: makeId(),
     category: "sequence",
     statement: `Complete a sequência: ${display}`,
     answer,
-    displayAnswer: sequence
-      .map((n, i) => (i === missingIndex ? String(answer) : String(n)))
-      .join(", "),
+    explanation: `A sequência aumenta de ${step} em ${step}: ${displayAnswer}.`,
+    displayAnswer,
   };
 }
 
@@ -338,6 +345,7 @@ function generateWord(grade: Grade): Question {
       category: "word",
       statement: `${name} tinha ${a} ${objectName} e ganhou mais ${b}. Quantas ${objectName} ${pronoun} tem agora?`,
       answer: a + b,
+      explanation: `Para somar: ${a} + ${b} = ${a + b}.`,
     };
   } else {
     const b = rand(cfg.min, Math.floor(cfg.max / 2));
@@ -347,6 +355,7 @@ function generateWord(grade: Grade): Question {
       category: "word",
       statement: `${name} tinha ${a} ${objectName} e deu ${b} para ${article} amigo${friendSuffix}. Quantas ${objectName} sobraram?`,
       answer: a - b,
+      explanation: `Para subtrair: ${a} − ${b} = ${a - b}.`,
     };
   }
 }
