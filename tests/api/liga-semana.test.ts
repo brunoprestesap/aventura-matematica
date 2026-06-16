@@ -77,4 +77,43 @@ describe("GET /api/liga/semana", () => {
     expect(json.placar[1]).toMatchObject({ rank: 2, name: "Bruno", xpWeekly: 200, isCurrentUser: false, zone: "promotion" });
     expect(json.placar[2]).toMatchObject({ rank: 3, name: "Carla", xpWeekly: 100, isCurrentUser: false, zone: "promotion" });
   });
+
+  it("não marca zona de rebaixamento em grupo sem zona segura", async () => {
+    // obsidiana: 5 promoção + 5 rebaixamento = 10; um grupo de 8 não tem zona
+    // segura, então o cron não rebaixa ninguém — o placar deve refletir isso.
+    const users = await Promise.all(
+      Array.from({ length: 8 }, (_, i) =>
+        createUser({ email: `obs${i}@example.com`, name: `User ${i}`, currentLeague: "obsidiana" })
+      )
+    );
+
+    const weekStart = currentWeekStart();
+    const group = await prisma.leagueGroup.create({
+      data: { tier: "obsidiana", grade: 4, weekStart },
+    });
+
+    await prisma.leagueMember.createMany({
+      data: users.map((u, i) => ({
+        userId: u.id,
+        groupId: group.id,
+        xpWeekly: (8 - i) * 10, // 80, 70, …, 10 (ordem decrescente)
+      })),
+    });
+
+    mockedAuth.mockResolvedValue({ user: { id: users[0].id } } as never);
+
+    const res = await GET();
+    const json = await res.json();
+
+    expect(json.placar).toHaveLength(8);
+    // Top 5 = zona de promoção
+    expect(json.placar.slice(0, 5).map((p: { zone: string }) => p.zone)).toEqual([
+      "promotion", "promotion", "promotion", "promotion", "promotion",
+    ]);
+    // Sem zona segura, ninguém entra na zona de rebaixamento (ranks 6-8 = safe)
+    expect(json.placar.slice(5).map((p: { zone: string }) => p.zone)).toEqual([
+      "safe", "safe", "safe",
+    ]);
+    expect(json.placar.some((p: { zone: string }) => p.zone === "demotion")).toBe(false);
+  });
 });

@@ -53,6 +53,11 @@ export async function GET() {
   const totalMembers = group.members.length;
   const promotionSlots = PROMOTION_SLOTS[group.tier];
   const demotionSlots = DEMOTION_SLOTS[group.tier];
+  // Só há zona de rebaixamento real se sobrar ao menos uma posição segura entre
+  // as zonas de promoção e rebaixamento — mesma regra aplicada no cron
+  // (app/api/cron/liga/route.ts). Sem isso, grupos pequenos exibiriam uma zona
+  // de rebaixamento que o cron nunca aplicaria.
+  const hasSafeZone = totalMembers > promotionSlots + demotionSlots;
 
   // Monta o placar com zonas de promoção/rebaixamento
   const placar = group.members.map((m, index) => {
@@ -60,7 +65,7 @@ export async function GET() {
     const zone =
       rank <= promotionSlots
         ? "promotion"
-        : rank > totalMembers - demotionSlots && demotionSlots > 0
+        : demotionSlots > 0 && hasSafeZone && rank > totalMembers - demotionSlots
           ? "demotion"
           : "safe";
 
