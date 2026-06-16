@@ -7,12 +7,12 @@ import {
   mintAuthCode,
   consumeAuthCode,
   createSessionForUser,
+  NATIVE_SESSION_MAX_AGE_MS,
 } from "@/lib/native-auth";
 
 describe("lib/native-auth", () => {
   beforeEach(async () => {
     await resetDatabase();
-    await prisma.nativeAuthCode.deleteMany();
   });
 
   afterAll(async () => {
@@ -65,5 +65,6 @@ describe("lib/native-auth", () => {
     const row = await prisma.session.findUnique({ where: { sessionToken } });
     expect(row?.userId).toBe(user.id);
     expect(expires.getTime()).toBeGreaterThan(Date.now());
+    expect(expires.getTime() - Date.now()).toBeGreaterThan(NATIVE_SESSION_MAX_AGE_MS - 5000);
   });
 });

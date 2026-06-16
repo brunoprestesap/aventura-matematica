@@ -22,10 +22,11 @@ model User {
   // Ano escolar preferido (sincronizado do localStorage na primeira sessão autenticada)
   grade         Int        @default(4) // 1–9
 
-  accounts      Account[]
-  sessions      Session[]
-  weeklyScores  WeeklyScore[]
+  accounts          Account[]
+  sessions          Session[]
+  weeklyScores      WeeklyScore[]
   leagueMemberships LeagueMember[]
+  nativeAuthCodes   NativeAuthCode[]
 
   @@map("users")
 }
@@ -81,6 +82,8 @@ model NativeAuthCode {
   expires   DateTime
   consumed  Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("native_auth_codes")
 }

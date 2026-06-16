@@ -1,4 +1,4 @@
-import { randomBytes, createHash } from "node:crypto";
+import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 
 // Janela curta: o app troca o código imediatamente após o deep link.
@@ -15,6 +15,8 @@ export function sha256Base64Url(input: string): string {
  * Nome do cookie de sessão do Auth.js. Em HTTPS (produção) o Auth.js usa o
  * prefixo __Secure-; fora dele, não. Os dois lados (exchange e auth()) precisam
  * usar exatamente o mesmo nome.
+ * Nota: o Auth.js aciona o prefixo __Secure- com base em HTTPS — isso funciona
+ * corretamente porque o ambiente de produção na Vercel é sempre HTTPS.
  */
 export function getSessionCookieName(): string {
   return process.env.NODE_ENV === "production"
@@ -52,11 +54,16 @@ export async function consumeAuthCode(
   });
   if (!row || row.consumed) return null;
   if (row.expires.getTime() < Date.now()) return null;
-  if (row.challenge !== sha256Base64Url(verifier)) return null;
+  const expected = Buffer.from(row.challenge);
+  const actual = Buffer.from(sha256Base64Url(verifier));
+  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+    return null;
+  }
 
   // Consumo atômico: só um exchange concorrente vence.
+  // O filtro `expires` evita janela TOCTOU: garante não-expiração no mesmo update.
   const updated = await prisma.nativeAuthCode.updateMany({
-    where: { id: row.id, consumed: false },
+    where: { id: row.id, consumed: false, expires: { gt: new Date() } },
     data: { consumed: true },
   });
   if (updated.count !== 1) return null;

@@ -32,6 +32,7 @@ export async function resetDatabase() {
   await prisma.account.deleteMany();
   await prisma.session.deleteMany();
   await prisma.verificationToken.deleteMany();
+  await prisma.nativeAuthCode.deleteMany();
   await prisma.user.deleteMany();
   await prisma.$executeRawUnsafe(`PRAGMA foreign_keys = ON;`);
 }
