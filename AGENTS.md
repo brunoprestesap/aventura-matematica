@@ -525,6 +525,9 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 - `POST /api/session`: recebe `grade`, `correct` e `answers` (array de 20 booleanos). Recalcula os acertos e o XP no servidor, registra a sessão e atualiza o grupo semanal do usuário.
 - `GET /api/liga/semana`: retorna o placar do grupo atual do usuário autenticado, com zonas de promoção (`promotion`), segurança (`safe`) e rebaixamento (`demotion`).
 - `GET /api/cron/liga`: endpoint protegido por `CRON_SECRET` (header `Authorization: Bearer <CRON_SECRET>`). Processa os grupos da semana anterior, define `finalRank`, `promoted`, `demoted` e atualiza `currentLeague` dos usuários.
+- `GET /api/native-auth/start`: inicia o login nativo (browser do sistema), grava o challenge PKCE e o deep link em cookies httpOnly.
+- `GET /api/native-auth/complete`: callback do OAuth (browser do sistema); emite um código de uso único e redireciona ao deep link `continhamagica://auth-callback`.
+- `POST /api/native-auth/exchange`: troca o código + verifier (PKCE) por uma sessão NextAuth (cria `Session`, seta o cookie). Chamado de dentro do WebView.
 
 > O cron é **idempotente**: a nova liga vem de `leagueUp`/`leagueDown(group.tier)` (tier imutável) e do rank (o XP da semana encerrada não muda mais), então rodá-lo duas vezes produz o mesmo resultado. **Não** baseie a promoção em `user.currentLeague`. A zona de rebaixamento só existe se `totalMembers > promotionSlots + demotionSlots` — a mesma regra (`hasSafeZone`) deve valer no cron e no `GET /api/liga/semana`.
 
@@ -585,6 +588,7 @@ Os testes carregam `env.test` via `vitest.setup.ts`.
 - **Variáveis de ambiente sensíveis**: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` e `CRON_SECRET` devem estar em `.env.local` e no painel da Vercel, nunca commitadas.
 - **Endpoint de cron**: `/api/cron/liga` exige o header `Authorization: Bearer ${CRON_SECRET}`. Não remova essa proteção.
 - **Cálculo de XP**: sempre realizado no servidor (`lib/league.ts`). Nunca aceite XP vindo do cliente.
+- **Login nativo (handoff PKCE):** o app nativo não autentica via WebView (o Google bloqueia OAuth embutido). O OAuth roda no browser do sistema e a sessão é transferida ao WebView por um código de uso único protegido por PKCE (`lib/native-auth.ts`). O `code_verifier` nunca sai do app; o código é single-use, expira em 60s e é consumido atomicamente.
 
 ---
 
@@ -606,7 +610,7 @@ As escolhas abaixo são intencionais. Não as reverta sem discutir com o mantene
 - **NÃO** remova o `ssr: false` do `QuizPageLoader`.
 - **NÃO** traduza a interface — o idioma do projeto é pt-BR e deve permanecer assim.
 - **NÃO** crie novas chaves de `localStorage` sem adicionar à tabela na seção "Persistência local" e sem envolver em `try/catch`.
-- **NÃO** adicione novas API routes sem discutir com o mantenedor.
+- **NÃO** adicione novas API routes sem discutir com o mantenedor. (As rotas `/api/native-auth/*` foram adicionadas com aprovação para o login nativo.)
 - **NÃO** calcule XP no cliente — o cálculo é sempre feito em `lib/league.ts` no servidor.
 - **NÃO** exponha o `CRON_SECRET` ou `AUTH_SECRET` em código ou logs.
 - **NÃO** altere a lógica de geração de questões em `lib/questions.ts` sem rodar `npx tsx scripts/test-questions.ts` e confirmar que os resultados são válidos para todos os anos (1º ao 9º).

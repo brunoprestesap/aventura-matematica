@@ -61,6 +61,16 @@ As chaves sincronizadas entre SecureStore e localStorage do PWA são:
 
 Essa sincronia é necessária principalmente no iOS, onde o WKWebView pode limpar o localStorage entre sessões de app.
 
+## Login Google (handoff PKCE)
+
+O Google bloqueia OAuth dentro de WebView. O fluxo de login:
+
+1. `useGoogleAuth().loginWithGoogle()` gera um `code_verifier`/`code_challenge` (PKCE) e abre `/api/native-auth/start` no **browser do sistema** via `expo-web-browser`.
+2. Após o OAuth, o backend emite um código de uso único e redireciona ao deep link `continhamagica://auth-callback?code=...`.
+3. O `WebViewBridge` recebe `NATIVE_LOGIN` do PWA, executa o passo 1-2 e injeta uma chamada a `/api/native-auth/exchange` (same-origin) que estabelece a sessão no WebView; em seguida recarrega.
+
+O `code_verifier` nunca sai do app (PKCE). Deps: `expo-web-browser`, `expo-crypto`, `expo-linking`.
+
 ## Scripts úteis
 
 ```bash
