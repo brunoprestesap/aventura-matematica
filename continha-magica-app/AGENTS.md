@@ -4,7 +4,7 @@ Arquivo de referência para agentes de IA que trabalharem no app híbrido (Expo 
 
 ## Visão geral
 
-Este diretório (`continha-magica-app/`) contém o **shell nativo** do app Continha Mágica. Ele não reescreve a lógica do PWA: apenas carrega a web app publicada em `https://continha-magica.vercel.app` dentro de um `WebView`, com integrações nativas mínimas para:
+Este diretório (`continha-magica-app/`) contém o **shell nativo** do app Continha Mágica. Ele não reescreve a lógica do PWA: apenas carrega a web app publicada em `https://continhamagica.vercel.app` dentro de um `WebView`, com integrações nativas mínimas para:
 
 - Persistência de dados entre sessões (SecureStore ↔ localStorage).
 - Detecção de conectividade.

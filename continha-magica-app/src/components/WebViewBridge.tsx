@@ -5,7 +5,7 @@ import { useWebViewStorage } from "@/hooks/useWebViewStorage";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
-const WEB_APP_URL = "https://continha-magica.vercel.app";
+const WEB_APP_URL = "https://continhamagica.vercel.app";
 
 /*
   Script injetado ANTES do carregamento do conteúdo da página (BeforeContentLoaded).

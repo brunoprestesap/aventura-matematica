@@ -204,7 +204,7 @@ continha-magica-app/          # Shell nativo do app (Expo + WebView)
 
 ### Fluxo do app nativo
 
-1. O app nativo carrega o PWA publicado em `https://continha-magica.vercel.app` dentro de um `WebView`.
+1. O app nativo carrega o PWA publicado em `https://continhamagica.vercel.app` dentro de um `WebView`.
 2. O `WebViewBridge` sincroniza `SecureStore` (nativo) com `localStorage` do PWA para as chaves `continha-magica-grade`, `continha-magica-history` e `continha-magica-user-name`.
 3. O app detecta conectividade (`useNetworkStatus`) e exibe banner offline quando necessário.
 4. O botão físico de voltar no Android é tratado no `_layout.tsx`.
@@ -534,7 +534,7 @@ O build inclui API routes serverless e depende do PostgreSQL para o sistema de l
 
 O app nativo usa **EAS (Expo Application Services)**. As configurações de build e submit estão em `continha-magica-app/eas.json`. O `projectId` do EAS está configurado em `continha-magica-app/app.json`.
 
-O app carrega a web app da URL definida em `extra.webAppUrl` no `app.json` (`https://continha-magica.vercel.app`). Ao alterar o PWA, o app nativo reflete as mudanças automaticamente (exceto atualizações nativas que exijam novo build).
+O app carrega a web app da URL definida em `extra.webAppUrl` no `app.json` (`https://continhamagica.vercel.app`). Ao alterar o PWA, o app nativo reflete as mudanças automaticamente (exceto atualizações nativas que exijam novo build).
 
 ---
 
