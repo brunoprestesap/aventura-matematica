@@ -3,6 +3,7 @@ import { StyleSheet, BackHandler, Platform } from "react-native";
 import Constants from "expo-constants";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { useWebViewStorage } from "@/hooks/useWebViewStorage";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
@@ -96,6 +97,7 @@ export function WebViewBridge() {
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
   const [autoReloadCount, setAutoReloadCount] = useState(0);
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
+  const { loginWithGoogle } = useGoogleAuth();
 
   // Carrega os dados persistidos antes de montar o WebView
   useEffect(() => {
@@ -115,6 +117,26 @@ export function WebViewBridge() {
     return () => sub.remove();
   }, []);
 
+  // Recebe NATIVE_LOGIN do PWA, faz o OAuth no browser do sistema e injeta o
+  // código no WebView para troca por sessão (same-origin → cookie gruda aqui).
+  const handleNativeLogin = useCallback(async () => {
+    const result = await loginWithGoogle();
+    if (!result) return;
+    const payload = JSON.stringify(result); // { code, verifier }
+    webViewRef.current?.injectJavaScript(`
+      (function() {
+        fetch('/api/native-auth/exchange', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: ${JSON.stringify(payload)}
+        }).then(function(r) {
+          if (r.ok) { window.location.reload(); }
+        }).catch(function() {});
+      })();
+      true;
+    `);
+  }, [loginWithGoogle]);
+
   const handleMessage = useCallback(
     async (event: WebViewMessageEvent) => {
       try {
@@ -125,12 +147,14 @@ export function WebViewBridge() {
           await removeItem(data.key);
         } else if (data.type === "STORAGE_CLEAR") {
           await clearItems();
+        } else if (data.type === "NATIVE_LOGIN") {
+          handleNativeLogin();
         }
       } catch {
         // Ignora mensagens não-JSON vindas do PWA (ex: logs de analytics)
       }
     },
-    [saveItem, removeItem, clearItems]
+    [saveItem, removeItem, clearItems, handleNativeLogin]
   );
 
   const handleRetry = useCallback(() => {
