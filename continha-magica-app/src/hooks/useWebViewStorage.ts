@@ -43,6 +43,22 @@ export function useWebViewStorage() {
   }, []);
 
   /*
+    Remove todas as chaves sincronizadas — espelha localStorage.clear() do
+    PWA para evitar que dados antigos sejam re-injetados na próxima sessão.
+  */
+  const clearItems = useCallback(async () => {
+    await Promise.all(
+      SYNC_KEYS.map(async (key) => {
+        try {
+          await SecureStore.deleteItemAsync(key);
+        } catch (error) {
+          console.warn("[Storage] Erro ao limpar:", key, error);
+        }
+      })
+    );
+  }, []);
+
+  /*
     Carrega todos os valores salvos para pré-popular o localStorage
     do WebView antes da página carregar — crítico para iOS, onde o
     localStorage do WKWebView pode ser limpo entre sessões.
@@ -64,5 +80,5 @@ export function useWebViewStorage() {
     return entries;
   }, []);
 
-  return { saveItem, removeItem, loadAllItems };
+  return { saveItem, removeItem, clearItems, loadAllItems };
 }

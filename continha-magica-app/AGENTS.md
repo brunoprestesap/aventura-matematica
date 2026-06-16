@@ -61,6 +61,16 @@ As chaves sincronizadas entre SecureStore e localStorage do PWA são:
 
 Essa sincronia é necessária principalmente no iOS, onde o WKWebView pode limpar o localStorage entre sessões de app.
 
+## Login Google (handoff PKCE)
+
+O Google bloqueia OAuth dentro de WebView. O fluxo de login:
+
+1. `useGoogleAuth().loginWithGoogle()` gera um `code_verifier`/`code_challenge` (PKCE) e abre `/api/native-auth/start` no **browser do sistema** via `expo-web-browser`.
+2. Após o OAuth, o backend emite um código de uso único e redireciona ao deep link `continhamagica://auth-callback?code=...`.
+3. O `WebViewBridge` recebe `NATIVE_LOGIN` do PWA, executa o passo 1-2 e injeta uma chamada a `/api/native-auth/exchange` (same-origin) que estabelece a sessão no WebView; em seguida recarrega.
+
+O `code_verifier` nunca sai do app (PKCE). Deps: `expo-web-browser`, `expo-crypto`, `expo-linking`.
+
 ## Scripts úteis
 
 ```bash
@@ -82,7 +92,9 @@ npm run build:prod:ios
 ## Notas sobre configurações
 
 - `edgeToEdgeEnabled` não está declarado em `app.json` porque o schema do Expo SDK 55 não aceita essa propriedade explicitamente; o edge-to-edge é habilitado por padrão em novos projetos do SDK 55. O padding de insets é controlado manualmente via `useSafeAreaInsets`.
-- O `projectId` do EAS em `app.json` ainda é um placeholder. Execute `eas init` para gerar o valor real.
+- O `projectId` do EAS em `app.json` já está configurado (`extra.eas.projectId`). Não é mais um placeholder.
+- A URL do PWA carregado pelo WebView vem de `extra.webAppUrl` no `app.json`, lida via `expo-constants` em `WebViewBridge.tsx`. Para apontar para outro ambiente, altere apenas o `app.json`.
+- O bloco `submit` em `eas.json` ainda contém placeholders (`<apple-id>`, `<ascAppId>`, `<team-id>` e `./google-play-key.json`). Preencha antes de rodar `eas submit`.
 
 ## Validação obrigatória
 

@@ -22,10 +22,11 @@ model User {
   // Ano escolar preferido (sincronizado do localStorage na primeira sessão autenticada)
   grade         Int        @default(4) // 1–9
 
-  accounts      Account[]
-  sessions      Session[]
-  weeklyScores  WeeklyScore[]
+  accounts          Account[]
+  sessions          Session[]
+  weeklyScores      WeeklyScore[]
   leagueMemberships LeagueMember[]
+  nativeAuthCodes   NativeAuthCode[]
 
   @@map("users")
 }
@@ -69,6 +70,22 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// Código de uso único para handoff de login do app nativo (PKCE).
+// Emitido após OAuth no browser do sistema, trocado por uma sessão no WebView.
+model NativeAuthCode {
+  id        String   @id @default(cuid())
+  codeHash  String   @unique // sha256(code) em base64url — nunca guardamos o code puro
+  challenge String   // code_challenge = base64url(sha256(code_verifier))
+  userId    String
+  expires   DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("native_auth_codes")
 }
 
 // Enum com as 10 ligas

@@ -39,7 +39,8 @@
           "image": "./assets/splash.png",
           "imageWidth": 200
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "extra": {
       "webAppUrl": "https://continhamagica.vercel.app",

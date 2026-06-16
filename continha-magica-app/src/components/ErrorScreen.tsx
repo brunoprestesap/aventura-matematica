@@ -13,6 +13,8 @@ export function ErrorScreen({ onRetry }: Props) {
         Verifique sua conexão e tente novamente.
       </Text>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Tentar novamente"
         style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         onPress={onRetry}
       >

@@ -41,6 +41,16 @@ export function LeaguePanel() {
 
   const loading = status === "authenticated" && data === null;
 
+  // No app nativo o OAuth do Google é bloqueado dentro do WebView.
+  // Delega ao shell nativo, que abre o browser do sistema e devolve a sessão.
+  function handleLogin() {
+    if (typeof window !== "undefined" && window.__NATIVE_APP__) {
+      window.ReactNativeWebView?.postMessage(JSON.stringify({ type: "NATIVE_LOGIN" }));
+      return;
+    }
+    signIn("google");
+  }
+
   // Usuário não autenticado
   if (status === "unauthenticated") {
     return (
@@ -49,7 +59,7 @@ export function LeaguePanel() {
           Entre com sua conta Google para participar das ligas semanais.
         </p>
         <button
-          onClick={() => signIn("google")}
+          onClick={handleLogin}
           className="rounded-lg bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand-dark"
         >
           Entrar com Google
