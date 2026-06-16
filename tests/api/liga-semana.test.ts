@@ -116,4 +116,42 @@ describe("GET /api/liga/semana", () => {
     ]);
     expect(json.placar.some((p: { zone: string }) => p.zone === "demotion")).toBe(false);
   });
+
+  it("marca zona de rebaixamento e usa fallback de nome em grupo com zona segura", async () => {
+    // obsidiana (5 sobem / 5 descem). Grupo de 12 tem zona segura (12 > 10).
+    const named = await Promise.all(
+      Array.from({ length: 11 }, (_, i) =>
+        createUser({ email: `dz${i}@example.com`, name: `User ${i}`, currentLeague: "obsidiana" })
+      )
+    );
+    // Usuário sem nome (name null) para exercitar o fallback "Anônimo"
+    const anon = await prisma.user.create({
+      data: { email: "anon@example.com", name: null, currentLeague: "obsidiana", grade: 4 },
+    });
+    const users = [...named, anon];
+
+    const weekStart = currentWeekStart();
+    const group = await prisma.leagueGroup.create({
+      data: { tier: "obsidiana", grade: 4, weekStart },
+    });
+    await prisma.leagueMember.createMany({
+      data: users.map((u, i) => ({
+        userId: u.id,
+        groupId: group.id,
+        xpWeekly: (12 - i) * 10, // anon (índice 11) fica com 10 XP → rank 12
+      })),
+    });
+
+    mockedAuth.mockResolvedValue({ user: { id: named[0].id } } as never);
+
+    const res = await GET();
+    const json = await res.json();
+
+    expect(json.placar).toHaveLength(12);
+    expect(json.placar[0].zone).toBe("promotion");
+    expect(json.placar[5].zone).toBe("safe"); // rank 6 na zona segura
+    expect(json.placar[7].zone).toBe("demotion"); // rank 8 já é rebaixamento
+    expect(json.placar[11].zone).toBe("demotion"); // rank 12
+    expect(json.placar[11].name).toBe("Anônimo"); // fallback de nome
+  });
 });

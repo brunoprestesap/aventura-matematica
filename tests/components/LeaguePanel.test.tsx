@@ -128,6 +128,46 @@ describe("LeaguePanel", () => {
     expect(vi.mocked(signOut)).toHaveBeenCalled();
   });
 
+  it("usa fallback Bronze quando a liga vem sem label/emoji", async () => {
+    mockUseSession.mockReturnValue({ status: "authenticated" });
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({ authenticated: true, hasGroup: false }),
+    });
+
+    render(<LeaguePanel />);
+
+    // Ramos `?? "Bronze"` e `?? "🥉"`
+    await waitFor(() => expect(screen.getByText("Bronze")).toBeInTheDocument());
+    expect(screen.getByText("🥉")).toBeInTheDocument();
+  });
+
+  it("renderiza zona de rebaixamento e avatar no placar", async () => {
+    mockUseSession.mockReturnValue({ status: "authenticated" });
+    mockFetch.mockResolvedValueOnce({
+      json: async () => ({
+        authenticated: true,
+        hasGroup: true,
+        leagueLabel: "Bronze",
+        leagueEmoji: "🥉",
+        promotionSlots: 1,
+        demotionSlots: 1,
+        placar: [
+          { rank: 1, userId: "u1", name: "Ana", image: "https://example.com/ana.png", xpWeekly: 100, isCurrentUser: false, zone: "promotion" },
+          { rank: 2, userId: "u2", name: "Bruno", image: null, xpWeekly: 10, isCurrentUser: true, zone: "demotion" },
+        ],
+      }),
+    });
+
+    render(<LeaguePanel />);
+
+    await waitFor(() => screen.getByText("Bruno"));
+    // Avatar com imagem (ramo `entry.image ?`)
+    expect(screen.getByRole("img", { name: "Ana" })).toBeInTheDocument();
+    // Ramo de borda de rebaixamento
+    const bruno = screen.getByText("Bruno").closest("li");
+    expect(bruno).toHaveClass("border-red-400");
+  });
+
   it("trata erro de fetch sem quebrar", async () => {
     mockUseSession.mockReturnValue({ status: "authenticated" });
     mockFetch.mockRejectedValueOnce(new Error("falha"));

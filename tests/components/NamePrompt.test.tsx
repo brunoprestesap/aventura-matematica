@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NamePrompt } from "@/components/NamePrompt";
 
@@ -27,5 +27,18 @@ describe("NamePrompt", () => {
 
     await userEvent.click(button);
     expect(onSubmit).toHaveBeenCalledWith("Ana");
+  });
+
+  it("não submete quando o nome contém apenas espaços", () => {
+    const onSubmit = vi.fn();
+    render(<NamePrompt onSubmit={onSubmit} />);
+
+    const input = screen.getByLabelText(/Seu nome/i);
+    fireEvent.change(input, { target: { value: "   " } });
+    // Submit direto no form (o botão fica desabilitado): exercita o ramo
+    // `if (trimmed)` falso em handleSubmit.
+    fireEvent.submit(input.closest("form")!);
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

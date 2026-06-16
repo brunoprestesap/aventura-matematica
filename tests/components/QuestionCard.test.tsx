@@ -78,6 +78,46 @@ describe("QuestionCard", () => {
     expect(screen.getByText(mockQuestion.explanation)).toBeInTheDocument();
   });
 
+  it("usa a pose 'pensando' quando ocioso com valor digitado", () => {
+    // status idle + value preenchido → pixelPose 'thinking' (ramo de QuestionCard
+    // e da pose 'thinking' do Pixel).
+    render(
+      <QuestionCard
+        question={mockQuestion}
+        index={1}
+        value="4"
+        onChange={() => {}}
+        status="idle"
+      />
+    );
+
+    expect(screen.getByText(mockQuestion.statement)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Resposta para a questão 1/i)).toHaveValue(4);
+  });
+
+  it("mostra a sequência completa em questões de sequência incorretas", () => {
+    const sequenceQuestion: Question = {
+      id: "s1",
+      category: "sequence",
+      statement: "Complete: 2, 4, __, 8",
+      answer: 6,
+      explanation: "A razão é 2.",
+      displayAnswer: "2, 4, 6, 8",
+    };
+
+    render(
+      <QuestionCard
+        question={sequenceQuestion}
+        index={2}
+        value="5"
+        onChange={() => {}}
+        status="incorrect"
+      />
+    );
+
+    expect(screen.getByText(/Sequência completa: 2, 4, 6, 8/i)).toBeInTheDocument();
+  });
+
   it("desabilita input quando disabled", () => {
     render(
       <QuestionCard

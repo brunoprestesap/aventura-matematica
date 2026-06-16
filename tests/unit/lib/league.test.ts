@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   calculateXP,
   leagueUp,
@@ -92,6 +92,30 @@ describe("currentWeekStart", () => {
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
     expect(diffDays).toBeGreaterThanOrEqual(0);
     expect(diffDays).toBeLessThanOrEqual(7);
+  });
+
+  it("no domingo, retorna a segunda-feira anterior (ramo day === 0)", () => {
+    vi.useFakeTimers();
+    try {
+      // 2024-01-07 é um domingo (UTC); a segunda anterior é 2024-01-01
+      vi.setSystemTime(new Date("2024-01-07T12:00:00.000Z"));
+      const weekStart = currentWeekStart();
+      expect(weekStart.toISOString()).toBe("2024-01-01T00:00:00.000Z");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("em dia de semana, retorna a segunda-feira da semana corrente", () => {
+    vi.useFakeTimers();
+    try {
+      // 2024-01-10 é uma quarta-feira; a segunda da semana é 2024-01-08
+      vi.setSystemTime(new Date("2024-01-10T12:00:00.000Z"));
+      const weekStart = currentWeekStart();
+      expect(weekStart.toISOString()).toBe("2024-01-08T00:00:00.000Z");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

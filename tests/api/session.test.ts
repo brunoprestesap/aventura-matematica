@@ -108,4 +108,72 @@ describe("POST /api/session", () => {
     const member = await prisma.leagueMember.findFirstOrThrow({ where: { userId: user.id } });
     expect(member.xpWeekly).toBe(50 + json.xpEarned);
   });
+
+  it("cria um novo grupo quando o grupo existente está cheio", async () => {
+    const { currentWeekStart, MAX_GROUP_SIZE } = await import("@/lib/league");
+    const weekStart = currentWeekStart();
+
+    // Cria um grupo bronze/ano 4 já no limite de MAX_GROUP_SIZE membros
+    const fullGroup = await prisma.leagueGroup.create({
+      data: { tier: "bronze", grade: 4, weekStart },
+    });
+    const fillers = await Promise.all(
+      Array.from({ length: MAX_GROUP_SIZE }, (_, i) =>
+        createUser({ email: `filler${i}@example.com` })
+      )
+    );
+    await prisma.leagueMember.createMany({
+      data: fillers.map((u) => ({ userId: u.id, groupId: fullGroup.id, xpWeekly: 0 })),
+    });
+
+    const user = await createUser({ email: "novo@example.com" });
+    mockedAuth.mockResolvedValue({ user: { id: user.id } } as never);
+
+    const req = createNextRequest({
+      method: "POST",
+      body: { grade: 4, correct: 20, answers: new Array(20).fill(true) },
+    });
+    await POST(req);
+
+    // O grupo estava cheio → deve ter sido criado um segundo grupo
+    const groups = await prisma.leagueGroup.findMany({
+      where: { tier: "bronze", grade: 4, weekStart },
+    });
+    expect(groups).toHaveLength(2);
+
+    const member = await prisma.leagueMember.findFirstOrThrow({ where: { userId: user.id } });
+    expect(member.groupId).not.toBe(fullGroup.id);
+  });
+
+  it("entra em grupo existente com vaga em vez de criar outro", async () => {
+    const { currentWeekStart } = await import("@/lib/league");
+    const weekStart = currentWeekStart();
+
+    // Grupo bronze/ano 4 com vaga (apenas 1 membro)
+    const group = await prisma.leagueGroup.create({
+      data: { tier: "bronze", grade: 4, weekStart },
+    });
+    const other = await createUser({ email: "outro@example.com" });
+    await prisma.leagueMember.create({
+      data: { userId: other.id, groupId: group.id, xpWeekly: 0 },
+    });
+
+    const user = await createUser({ email: "entrante@example.com" });
+    mockedAuth.mockResolvedValue({ user: { id: user.id } } as never);
+
+    const req = createNextRequest({
+      method: "POST",
+      body: { grade: 4, correct: 20, answers: new Array(20).fill(true) },
+    });
+    await POST(req);
+
+    // Não cria novo grupo: entra no existente (ramo `_count.members < MAX_GROUP_SIZE`)
+    const groups = await prisma.leagueGroup.findMany({
+      where: { tier: "bronze", grade: 4, weekStart },
+    });
+    expect(groups).toHaveLength(1);
+
+    const member = await prisma.leagueMember.findFirstOrThrow({ where: { userId: user.id } });
+    expect(member.groupId).toBe(group.id);
+  });
 });
