@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import {
   readUserName,
   writeUserName,
   notifyUserNameChanged,
+  useUserName,
   USER_NAME_KEY,
 } from "@/lib/user";
 
@@ -33,6 +35,32 @@ describe("notifyUserNameChanged", () => {
     const event = listener.mock.calls[0][0] as StorageEvent;
     expect(event.key).toBe(USER_NAME_KEY);
     window.removeEventListener("storage", listener);
+  });
+});
+
+describe("useUserName", () => {
+  it("retorna null inicialmente e reage a notifyUserNameChanged", () => {
+    const { result } = renderHook(() => useUserName());
+    expect(result.current).toBeNull();
+
+    act(() => {
+      writeUserName("Marina");
+      notifyUserNameChanged();
+    });
+
+    expect(result.current).toBe("Marina");
+  });
+
+  it("ignora StorageEvent de outra chave", () => {
+    const { result } = renderHook(() => useUserName());
+
+    act(() => {
+      writeUserName("Téo");
+      window.dispatchEvent(new StorageEvent("storage", { key: "outra-chave" }));
+    });
+
+    // Não notificou para esta chave → snapshot anterior permanece
+    expect(result.current).toBeNull();
   });
 });
 

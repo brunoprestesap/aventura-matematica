@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 import {
   readHistory,
   writeHistory,
   addActivity,
   parseHistory,
   formatActivityDate,
+  notifyHistoryChanged,
+  useHistory,
   HISTORY_KEY,
   HISTORY_VERSION,
   type ActivityHistory,
@@ -88,6 +91,35 @@ describe("formatActivityDate", () => {
     expect(formatted).toContain("20/05/2024");
     // Verifica que hora e minuto estão presentes no formato HH:MM
     expect(formatted).toMatch(/\d{2}:\d{2}/);
+  });
+});
+
+describe("useHistory", () => {
+  it("reage a notifyHistoryChanged (listeners internos)", () => {
+    const { result } = renderHook(() => useHistory());
+    expect(result.current.activities).toHaveLength(0);
+
+    act(() => {
+      const updated = addActivity(result.current, 4, 18, 20, "2024-02-01T12:00:00.000Z");
+      writeHistory(updated);
+      notifyHistoryChanged();
+    });
+
+    expect(result.current.activities).toHaveLength(1);
+    expect(result.current.activities[0].score).toBe(18);
+  });
+
+  it("reage a StorageEvent da chave de histórico (outra aba)", () => {
+    const { result } = renderHook(() => useHistory());
+
+    act(() => {
+      const updated = addActivity(result.current, 5, 10, 20, "2024-03-01T12:00:00.000Z");
+      writeHistory(updated);
+      window.dispatchEvent(new StorageEvent("storage", { key: HISTORY_KEY }));
+    });
+
+    expect(result.current.activities).toHaveLength(1);
+    expect(result.current.activities[0].grade).toBe(5);
   });
 });
 
