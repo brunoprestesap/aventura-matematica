@@ -433,6 +433,8 @@ A cobertura é configurada em `vitest.config.ts`.
 
 - Ao modificar `lib/questions.ts`, rode `npx tsx scripts/test-questions.ts` **e** `npm run test`.
 - Testes de API routes usam o banco SQLite; eles rodam em série (`fileParallelism: false`) para evitar conflitos de dados.
+- Antes dos testes de API, rode `npm run test:db:push` (o `prisma/test.db` pode estar com 0 bytes até o primeiro push).
+- Cobertura: `npx vitest run --coverage` (provider v8, pacote `@vitest/coverage-v8`). Thresholds: 80% lines/funcs/stmts, 70% branches.
 - Não remova o `HISTORY_KEY`, `HISTORY_VERSION`, `USER_NAME_KEY` e `parseHistory` — eles são exportados para os testes.
 
 ---
@@ -523,6 +525,8 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 - `POST /api/session`: recebe `grade`, `correct` e `answers` (array de 20 booleanos). Recalcula os acertos e o XP no servidor, registra a sessão e atualiza o grupo semanal do usuário.
 - `GET /api/liga/semana`: retorna o placar do grupo atual do usuário autenticado, com zonas de promoção (`promotion`), segurança (`safe`) e rebaixamento (`demotion`).
 - `GET /api/cron/liga`: endpoint protegido por `CRON_SECRET` (header `Authorization: Bearer <CRON_SECRET>`). Processa os grupos da semana anterior, define `finalRank`, `promoted`, `demoted` e atualiza `currentLeague` dos usuários.
+
+> O cron é **idempotente**: a nova liga vem de `leagueUp`/`leagueDown(group.tier)` (tier imutável) e do rank (o XP da semana encerrada não muda mais), então rodá-lo duas vezes produz o mesmo resultado. **Não** baseie a promoção em `user.currentLeague`. A zona de rebaixamento só existe se `totalMembers > promotionSlots + demotionSlots` — a mesma regra (`hasSafeZone`) deve valer no cron e no `GET /api/liga/semana`.
 
 ### Cálculo de XP (`lib/league.ts`)
 
@@ -619,13 +623,14 @@ As escolhas abaixo são intencionais. Não as reverta sem discutir com o mantene
 
 ## Problemas conhecidos e pontos de atenção
 
-1. **Resolução de aliases nos testes**: o `tsconfig.json` exclui `tests`, `**/*.test.ts`, `**/*.test.tsx` e `**/*.spec.ts` da propriedade `include`. Como o plugin `vite-tsconfig-paths` usa o `tsconfig.json` para resolver os aliases `@/*`, os testes atualmente falham com "Failed to resolve import". Para executar os testes, é necessário ajustar o `tsconfig.json` (remover a exclusão de testes) ou configurar os aliases diretamente no `vitest.config.ts`.
+1. **Resolução de aliases nos testes**: embora o `tsconfig.json` exclua `tests`/`*.test.*`, os testes **rodam normalmente** — o `vitest.config.ts` resolve `@/*` via `resolve.alias` explícito + `vite-tsconfig-paths`. O plugin emite um aviso de depreciação inofensivo. Não tente "consertar" isso.
 2. **Lint limpo**: `npm run lint` passa sem erros.
 3. **Build limpo**: `npm run build` passa sem erros.
 4. **Geração de IDs**: `makeId()` usa `Math.random()`, o que é aceitável para IDs locais, mas não é criptograficamente seguro.
 5. **Service worker**: a estratégia de cache é simples. Em novas versões, lembre-se de atualizar a constante `CACHE_NAME` em `public/sw.js` para invalidar caches antigos.
 6. **Ícones PWA**: a pasta `public/icons/` deve conter os tamanhos referenciados no `manifest.json` (`192x192`, `512x512` e máscara `maskable-icon-512x512`).
 7. **App nativo**: o `projectId` do EAS em `app.json` já está configurado. Sempre valide com `npx expo-doctor` antes de considerar uma alteração finalizada.
+8. **Vercel CLI (gotchas)**: a CLI instalada (50.x) está desatualizada. `vercel env rm <NOME> production` remove a variável de **todos** os ambientes; `vercel env add <NOME> preview` exige a branch como 3º argumento (o caminho "todas as branches" não-interativo falha nesta versão); `vercel env pull` **sobrescreve** `.env.local` e pode apagar variáveis que só existem em alguns ambientes (ex.: `AUTH_*` só em Production). Para Preview, prefira o painel da Vercel.
 
 ---
 
