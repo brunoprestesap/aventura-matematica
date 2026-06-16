@@ -322,6 +322,24 @@ Para abrir o Prisma Studio:
 npm run db:studio
 ```
 
+### Banco de dados de produção (Neon)
+
+Em produção o banco é um **PostgreSQL serverless da Neon**, provisionado pela
+**Vercel Marketplace** (`vercel integration add neon`). A integração injeta
+automaticamente o `DATABASE_URL` (e variáveis `POSTGRES_*`/`PG*`) nos ambientes
+da Vercel.
+
+- O `DATABASE_URL` de produção aponta para o endpoint **pooled** do Neon (valor
+  equivalente ao `POSTGRES_PRISMA_URL`, com `connect_timeout=15`). Usar o pooled
+  evita o erro `prepared statement "s0" already exists` do Prisma em ambiente
+  serverless. Se o erro voltar a aparecer, acrescente `&pgbouncer=true`.
+- Para aplicar mudanças de schema no banco de produção, use a conexão **unpooled**
+  (`DATABASE_URL_UNPOOLED` / `POSTGRES_URL_NON_POOLING`), apropriada para DDL:
+  `DATABASE_URL="<unpooled>" npx prisma db push`.
+- Desenvolvimento e produção usam bancos **separados**: dev no Postgres local
+  (docker), produção no Neon. Não aponte o `.env.local` de dev para o banco de
+  produção.
+
 ### App nativo (`continha-magica-app/`)
 
 ```bash
@@ -520,15 +538,9 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 
 ### Web / PWA
 
-O projeto está configurado para deploy na **Vercel**. O arquivo `.vercel/project.json` contém as informações do projeto e não deve ser commitado em repositórios públicos.
+O projeto está configurado para deploy na **Vercel** (projeto `aventura-matematica`, servido em `https://continhamagica.vercel.app`). O arquivo `.vercel/project.json` contém as informações do projeto e não deve ser commitado em repositórios públicos.
 
-```json
-{
-  "projectName": "continha-magica"
-}
-```
-
-O build inclui API routes serverless e depende do PostgreSQL para o sistema de ligas. Não há pipelines de CI/CD configuradas no repositório (nenhuma pasta `.github/workflows`, `.gitlab-ci.yml`, etc.).
+O build inclui API routes serverless e depende do PostgreSQL para o sistema de ligas. O banco de produção é o **Neon**, provisionado via Vercel Marketplace (ver "Banco de dados de produção (Neon)"). O deploy ocorre automaticamente a cada push na branch `main` (integração GitHub ↔ Vercel); também pode ser disparado manualmente com `vercel --prod`. Não há pipelines de CI/CD próprias no repositório (nenhuma pasta `.github/workflows`, `.gitlab-ci.yml`, etc.).
 
 ### App nativo
 
@@ -542,13 +554,19 @@ O app carrega a web app da URL definida em `extra.webAppUrl` no `app.json` (`htt
 
 | Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | Connection string do PostgreSQL |
+| `DATABASE_URL` | Connection string do PostgreSQL. Em dev, Postgres local (docker); em produção, conexão pooled do Neon (provisionada pela integração Vercel). |
 | `AUTH_SECRET` | Segredo do NextAuth (gere com `openssl rand -base64 32`) |
 | `AUTH_GOOGLE_ID` | Client ID do Google OAuth (Google Cloud Console) |
 | `AUTH_GOOGLE_SECRET` | Client Secret do Google OAuth |
 | `CRON_SECRET` | Segredo para autenticar chamadas do Vercel Cron ao endpoint `/api/cron/liga` |
 
 Todas as variáveis devem estar em `.env.local` (desenvolvimento) e no painel da Vercel (produção). Nenhuma delas deve ser commitada no repositório. Um template está disponível em `env.example`.
+
+> O `DATABASE_URL` (e as variáveis `POSTGRES_*`/`PG*`) em produção são
+> **provisionados automaticamente pela integração Neon** na Vercel — não os
+> preencha manualmente. Atenção: `vercel env pull` sobrescreve o `.env.local`
+> e pode remover variáveis que só existem em alguns ambientes (ex.: `AUTH_*`
+> definidas só em Production); confira o arquivo após puxar.
 
 Os testes carregam `env.test` via `vitest.setup.ts`.
 
