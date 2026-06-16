@@ -298,7 +298,7 @@ export function QuizPage() {
                 {gradeConfig.description}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -340,9 +340,9 @@ export function QuizPage() {
                 {answeredCount} de {questions.length}
               </span>
             </div>
-            <div className="h-4 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className="h-5 w-full overflow-hidden rounded-full bg-slate-100 shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-brand to-pink-500 transition-all duration-500 ease-out"
+                className="relative h-full rounded-full bg-gradient-to-r from-brand via-brand-light to-pink-400 transition-all duration-500 ease-out shadow-[inset_0_-2px_4px_rgba(0,0,0,0.15)]"
                 style={{ width: `${(answeredCount / questions.length) * 100}%` }}
                 aria-valuenow={answeredCount}
                 aria-valuemax={questions.length}
@@ -354,7 +354,7 @@ export function QuizPage() {
 
         {/* Resultado */}
         {submitted && (
-          <div className="mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-brand-light sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8">
+          <div className="animate-bounce-in mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-brand-light sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-light px-3 py-1 text-xs font-bold text-brand-dark sm:text-sm">
               <Trophy className="size-4 sm:size-5" aria-hidden="true" />
               Resultado
@@ -375,7 +375,7 @@ export function QuizPage() {
         )}
 
         {/* Grid de questões */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
+        <div className="grid grid-cols-1 gap-x-3 gap-y-8 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-5 lg:gap-y-12">
           {questions.map((question, index) => (
             <QuestionCardItem
               key={question.id}
@@ -391,13 +391,13 @@ export function QuizPage() {
         </div>
 
         {/* Barra de ações sticky */}
-        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/50 bg-white/90 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] backdrop-blur-md sm:bottom-4 sm:left-1/2 sm:right-auto sm:w-[calc(100%-2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:rounded-2xl sm:border sm:border-slate-200/60 sm:p-4 md:bottom-6">
+        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/40 bg-white/70 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(13,148,136,0.15)] backdrop-blur-xl sm:bottom-4 sm:left-1/2 sm:right-auto sm:w-[calc(100%-2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border sm:border-slate-200/60 sm:p-4 md:bottom-6">
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
             {!submitted && (
               <Button
                 size="lg"
                 onClick={handleVerify}
-                className="h-12 w-full rounded-xl bg-green-500 px-6 text-base font-bold text-white shadow-md transition-colors hover:bg-green-600 active:scale-[0.98] sm:h-14 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-lg"
+                className="btn-3d-base h-14 w-full rounded-2xl bg-green-500 border-b-4 border-green-700 px-6 text-base font-bold text-white shadow-md active:translate-y-1 active:border-b-0 active:mb-1 hover:bg-green-400 sm:h-14 sm:w-auto sm:px-8 sm:text-lg"
               >
                 <CheckCircle2
                   className="mr-2 size-5 sm:size-6"
@@ -411,7 +411,7 @@ export function QuizPage() {
               <Button
                 size="lg"
                 onClick={handleNewQuestions}
-                className="h-12 w-full rounded-xl bg-brand px-6 text-base font-bold text-white shadow-md transition-colors hover:bg-brand-dark active:scale-[0.98] sm:h-14 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-lg"
+                className="btn-3d-base btn-3d-brand h-14 w-full rounded-2xl px-6 text-base font-bold shadow-md sm:h-14 sm:w-auto sm:px-8 sm:text-lg"
               >
                 <RotateCcw
                   className="mr-2 size-5 sm:size-6"
@@ -445,7 +445,7 @@ export function QuizPage() {
             aria-label="Liga semanal"
           >
             <div
-              className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+              className="animate-slide-up max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">

@@ -32,7 +32,7 @@ export function HistoryPanel() {
           aria-label="Histórico de atividades"
         >
           <div
-            className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
+            className="animate-slide-up max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">

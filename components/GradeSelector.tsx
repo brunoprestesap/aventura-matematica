@@ -13,7 +13,7 @@ interface GradeSelectorProps {
 export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center justify-center px-4 py-6 text-center sm:min-h-[70vh] sm:py-12">
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-4 animate-float">
         <Pixel pose="idle" size={72} />
       </div>
 
@@ -30,7 +30,7 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
         dificuldade ideal para você.
       </p>
 
-      <div className="grid w-full grid-cols-2 gap-2 px-1 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:gap-5">
+      <div className="grid w-full grid-cols-2 gap-3 px-1 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:gap-6">
         {GRADES.map((grade) => {
           const cfg = getGradeConfig(grade);
           const isSelected = currentGrade === grade;
@@ -42,12 +42,11 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
               aria-pressed={isSelected}
               onClick={() => onSelect(grade)}
               className={cn(
-                "group relative flex min-h-[88px] flex-col items-center justify-center rounded-2xl border-2 bg-white p-2 text-center shadow-sm transition-all duration-200 sm:min-h-[120px] sm:rounded-3xl sm:p-4 md:p-5",
-                "hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]",
-                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
+                "card-3d group relative flex min-h-[88px] flex-col items-center justify-center rounded-2xl bg-white p-2 text-center shadow-sm sm:min-h-[120px] sm:rounded-3xl sm:p-4 md:p-5",
+                "focus-visible:outline-none focus-visible:ring-[6px] focus-visible:ring-brand/20",
                 isSelected
-                  ? "border-brand bg-brand-light ring-2 ring-brand/30"
-                  : "border-slate-200 hover:border-brand/30"
+                  ? "border-brand bg-brand-light"
+                  : "border-slate-200 hover:border-brand/50"
               )}
             >
               <span

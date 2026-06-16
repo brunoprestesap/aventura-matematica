@@ -31,7 +31,9 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
           </div>
 
           <div className="flex flex-col items-center gap-2 mb-6">
-            <Pixel pose="idle" size={96} />
+            <div className="animate-float">
+              <Pixel pose="idle" size={96} />
+            </div>
             <p className="text-sm text-muted-foreground">Olá! Eu sou o Pixel 👋</p>
           </div>
 
@@ -61,7 +63,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
               maxLength={30}
               autoFocus
               autoComplete="given-name"
-              className="h-14 w-full rounded-2xl border-2 border-brand-light bg-slate-50 px-5 text-center text-lg font-bold text-slate-800 shadow-sm placeholder:font-medium placeholder:text-slate-400 focus-visible:border-brand focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-brand/30 sm:h-16 sm:text-xl"
+              className="h-14 w-full rounded-2xl border-4 border-brand-light bg-slate-50 px-5 text-center text-lg font-bold text-slate-800 shadow-sm placeholder:font-medium placeholder:text-slate-400 focus-visible:border-brand focus-visible:bg-white focus-visible:ring-[6px] focus-visible:ring-brand/20 sm:h-16 sm:text-xl"
             />
           </div>
 
@@ -70,7 +72,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
               type="submit"
               size="lg"
               disabled={!name.trim()}
-              className="h-14 w-full rounded-2xl bg-gradient-to-r from-brand to-pink-500 px-6 text-base font-bold text-white shadow-lg shadow-brand/40 transition-all hover:from-brand-dark hover:to-pink-600 hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 sm:h-16 sm:text-lg"
+              className="btn-3d-base btn-3d-magic h-14 w-full rounded-2xl px-6 text-base font-bold shadow-lg shadow-brand/40 disabled:cursor-not-allowed disabled:opacity-50 sm:h-16 sm:text-lg"
             >
               <Rocket className="mr-2 size-5" aria-hidden="true" />
               Começar a magia

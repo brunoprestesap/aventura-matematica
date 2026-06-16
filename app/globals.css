@@ -236,6 +236,17 @@ input[type="number"] {
   50%       { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .animate-pop-in {
   animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -246,6 +257,14 @@ input[type="number"] {
 
 .animate-pulse-brand {
   animation: pulse-brand 1.5s ease infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
 }
 
 /* ── Pixel — animações de pose ──────────────────────────────────── */
@@ -284,11 +303,77 @@ input[type="number"] {
   .animate-pop-in,
   .animate-slide-up,
   .animate-pulse-brand,
+  .animate-float,
+  .animate-bounce-in,
   .animate-pixel-think .animate-think-1,
   .animate-pixel-think .animate-think-2,
   .animate-pixel-think .animate-think-3 {
     animation: none;
   }
+}
+
+/* ─── Utilitários 3D / Tátil ───────────────────────────────────── */
+
+.btn-3d-base {
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), border-width 0.1s cubic-bezier(0.4, 0, 0.2, 1), margin-top 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-3d-magic {
+  background: linear-gradient(90deg, var(--brand) 0%, #ec4899 100%);
+  border-bottom: 4px solid var(--color-brand-dark);
+  color: white;
+}
+.btn-3d-magic:hover:not(:disabled) {
+  background: linear-gradient(90deg, var(--color-brand-dark) 0%, #db2777 100%);
+}
+.btn-3d-magic:active:not(:disabled) {
+  transform: translateY(4px);
+  border-bottom-width: 0px;
+  margin-bottom: 4px;
+}
+
+.btn-3d-brand {
+  background: linear-gradient(180deg, var(--brand-light) 0%, var(--brand) 100%);
+  border-bottom: 4px solid var(--color-brand-dark);
+  color: white;
+}
+.btn-3d-brand:active:not(:disabled) {
+  transform: translateY(4px);
+  border-bottom-width: 0px;
+  margin-bottom: 4px; /* compensate for border-width loss to not jump following elements */
+}
+
+.btn-3d-white {
+  background: white;
+  border-bottom: 4px solid var(--border);
+  color: var(--text-primary);
+}
+.btn-3d-white:hover {
+  border-bottom-color: var(--border-strong);
+}
+.btn-3d-white:active:not(:disabled) {
+  transform: translateY(4px);
+  border-bottom-width: 0px;
+  margin-bottom: 4px;
+}
+
+.card-3d {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-width 0.15s ease, margin-bottom 0.15s ease;
+  border-bottom: 4px solid var(--border);
+}
+.card-3d:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
+}
+.card-3d:focus-within {
+  border-bottom-color: var(--brand);
+}
+.card-3d.correct {
+  border-bottom-color: var(--success);
+}
+.card-3d.incorrect {
+  border-bottom-color: var(--error);
 }
 
 /* ─── Scrollbar (WebKit) ───────────────────────────────────────── */

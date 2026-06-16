@@ -260,7 +260,7 @@ export function InstallPrompt() {
           aria-labelledby="install-title"
         >
           <div
-            className={`relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[1.75rem] bg-white shadow-2xl transition-all duration-300 ease-out sm:max-h-[85vh] sm:rounded-[2rem] ${
+            className={`relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl transition-all duration-300 ease-out sm:max-h-[85vh] sm:rounded-[2rem] ${
               isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
             }`}
           >
