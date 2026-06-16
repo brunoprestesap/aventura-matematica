@@ -549,6 +549,20 @@ O projeto está configurado para deploy na **Vercel** (projeto `aventura-matemat
 
 O build inclui API routes serverless e depende do PostgreSQL para o sistema de ligas. O banco de produção é o **Neon**, provisionado via Vercel Marketplace (ver "Banco de dados de produção (Neon)"). O deploy ocorre automaticamente a cada push na branch `main` (integração GitHub ↔ Vercel); também pode ser disparado manualmente com `vercel --prod`. Não há pipelines de CI/CD próprias no repositório (nenhuma pasta `.github/workflows`, `.gitlab-ci.yml`, etc.).
 
+> ⚠️ **`prisma generate` faz parte do build.** O script `build` é
+> `prisma generate && next build` — **não remova o `prisma generate`**. O
+> Vercel restaura `node_modules` do cache e o `npm install` frequentemente
+> resolve como "up to date", então o Prisma Client **não** seria regenerado
+> sozinho. Sem o `prisma generate` explícito, qualquer **novo model ou campo**
+> no `schema.prisma` quebra o deploy com erros de type-check do tipo
+> `Property '<model>' does not exist on type 'PrismaClient'`, mesmo que o build
+> passe localmente (onde o client já está atualizado). Esse erro derrubou o
+> primeiro deploy que adicionou o model `NativeAuthCode`.
+>
+> Ao alterar o `schema.prisma`, aplique a mudança no banco de produção (Neon)
+> com a conexão **unpooled** antes/junto do deploy — ver "Banco de dados de
+> produção (Neon)".
+
 ### App nativo
 
 O app nativo usa **EAS (Expo Application Services)**. As configurações de build e submit estão em `continha-magica-app/eas.json`. O `projectId` do EAS está configurado em `continha-magica-app/app.json`.
