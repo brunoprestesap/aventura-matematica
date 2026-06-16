@@ -167,7 +167,7 @@ export function QuizPage() {
   // Com até 20 itens, o custo dessas derivações é desprezível;
   // evitamos useMemo para não pagar o overhead de hooks.
   const answeredCount = questions.filter(
-    (q) => answers[q.id]?.trim() !== ""
+    (q) => (answers[q.id]?.trim() ?? "") !== ""
   ).length;
   const score = Object.values(statuses).filter((s) => s === "correct").length;
 
