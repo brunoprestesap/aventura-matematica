@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { HISTORY_KEY, HISTORY_VERSION } from "@/lib/history";
@@ -32,5 +32,34 @@ describe("HistoryPanel", () => {
 
     expect(screen.getByText("4º ano")).toBeInTheDocument();
     expect(screen.getByText("18/20")).toBeInTheDocument();
+  });
+
+  it("fecha o modal pelo botão X", async () => {
+    render(<HistoryPanel />);
+    await userEvent.click(screen.getByRole("button", { name: /Histórico/i }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: /Fechar/i }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("mantém o modal aberto ao clicar no conteúdo interno", async () => {
+    render(<HistoryPanel />);
+    await userEvent.click(screen.getByRole("button", { name: /Histórico/i }));
+
+    // Clique no conteúdo não deve propagar para o overlay (stopPropagation)
+    await userEvent.click(
+      screen.getByRole("heading", { name: /Histórico de atividades/i })
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("fecha o modal ao clicar no overlay", async () => {
+    render(<HistoryPanel />);
+    await userEvent.click(screen.getByRole("button", { name: /Histórico/i }));
+
+    // Clique direto no overlay (elemento dialog) dispara o fechamento
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
