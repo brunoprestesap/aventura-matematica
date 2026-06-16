@@ -5,7 +5,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 export default function HomeScreen() {
-  const { isConnected } = useNetworkStatus();
+  const { isConnected, isInternetReachable } = useNetworkStatus();
   /*
     useSafeAreaInsets em vez de SafeAreaView para controle granular.
     SafeAreaView do react-native está depreciado — não usar.
@@ -23,7 +23,9 @@ export default function HomeScreen() {
         },
       ]}
     >
-      {isConnected === false && <OfflineBanner />}
+      {(isConnected === false || isInternetReachable === false) && (
+        <OfflineBanner />
+      )}
       <WebViewBridge />
     </View>
   );

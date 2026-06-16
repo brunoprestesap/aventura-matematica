@@ -1,11 +1,16 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { StyleSheet, BackHandler, Platform } from "react-native";
+import Constants from "expo-constants";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { useWebViewStorage } from "@/hooks/useWebViewStorage";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
-const WEB_APP_URL = "https://continhamagica.vercel.app";
+// URL única definida em app.json (extra.webAppUrl); o fallback evita crash
+// caso a config esteja ausente em algum ambiente de build.
+const WEB_APP_URL =
+  (Constants.expoConfig?.extra?.webAppUrl as string | undefined) ??
+  "https://continhamagica.vercel.app";
 
 /*
   Script injetado ANTES do carregamento do conteúdo da página (BeforeContentLoaded).
@@ -65,6 +70,18 @@ function buildBridgeScript(initialData: Record<string, string>): string {
     } catch {}
   };
 
+  // Intercepta clear() para que o SecureStore nativo não retenha dados
+  // antigos (zombie data) que seriam re-injetados na próxima sessão.
+  const _clear = localStorage.clear.bind(localStorage);
+  localStorage.clear = function() {
+    _clear();
+    try {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({ type: 'STORAGE_CLEAR' })
+      );
+    } catch {}
+  };
+
   true;
 })();
 `;
@@ -78,7 +95,7 @@ export function WebViewBridge() {
   const [hasError, setHasError] = useState(false);
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
   const [autoReloadCount, setAutoReloadCount] = useState(0);
-  const { saveItem, removeItem, loadAllItems } = useWebViewStorage();
+  const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
 
   // Carrega os dados persistidos antes de montar o WebView
   useEffect(() => {
@@ -106,12 +123,14 @@ export function WebViewBridge() {
           await saveItem(data.key, data.value);
         } else if (data.type === "STORAGE_REMOVE") {
           await removeItem(data.key);
+        } else if (data.type === "STORAGE_CLEAR") {
+          await clearItems();
         }
       } catch {
         // Ignora mensagens não-JSON vindas do PWA (ex: logs de analytics)
       }
     },
-    [saveItem, removeItem]
+    [saveItem, removeItem, clearItems]
   );
 
   const handleRetry = useCallback(() => {
@@ -123,6 +142,10 @@ export function WebViewBridge() {
 
   const handleLoadStart = useCallback(() => {
     setIsLoading(true);
+    // Conta cada início de carregamento para detectar loops de
+    // redirecionamento (loadStart sem loadEnd bem-sucedido). O contador é
+    // zerado em handleLoadEnd a cada carregamento completo, então navegação
+    // normal nunca atinge o limite.
     setAutoReloadCount((count) => {
       if (count >= MAX_AUTO_RELOADS) {
         setHasError(true);
@@ -130,6 +153,19 @@ export function WebViewBridge() {
       }
       return count + 1;
     });
+  }, []);
+
+  const handleLoadEnd = useCallback(() => {
+    setIsLoading(false);
+    // Carregamento concluído com sucesso: reseta o detector de loop.
+    setAutoReloadCount(0);
+  }, []);
+
+  // Recupera o WebView quando o processo de conteúdo morre por pressão de
+  // memória (WKWebView no iOS) ou é encerrado pelo SO (Android). Sem isso o
+  // app ficaria com tela branca permanente ou crasharia.
+  const handleProcessTerminated = useCallback(() => {
+    webViewRef.current?.reload();
   }, []);
 
   // Aguarda o script de bridge estar pronto antes de renderizar o WebView
@@ -165,7 +201,7 @@ export function WebViewBridge() {
         thirdPartyCookiesEnabled={true}
         // Eventos de ciclo de vida
         onLoadStart={handleLoadStart}
-        onLoadEnd={() => setIsLoading(false)}
+        onLoadEnd={handleLoadEnd}
         onError={() => {
           setIsLoading(false);
           setHasError(true);
@@ -176,6 +212,9 @@ export function WebViewBridge() {
             setHasError(true);
           }
         }}
+        // Recuperação de morte do processo de renderização
+        onContentProcessDidTerminate={handleProcessTerminated}
+        onRenderProcessGone={handleProcessTerminated}
       />
       {isLoading && <LoadingScreen />}
     </>

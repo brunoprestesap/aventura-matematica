@@ -82,7 +82,9 @@ npm run build:prod:ios
 ## Notas sobre configurações
 
 - `edgeToEdgeEnabled` não está declarado em `app.json` porque o schema do Expo SDK 55 não aceita essa propriedade explicitamente; o edge-to-edge é habilitado por padrão em novos projetos do SDK 55. O padding de insets é controlado manualmente via `useSafeAreaInsets`.
-- O `projectId` do EAS em `app.json` ainda é um placeholder. Execute `eas init` para gerar o valor real.
+- O `projectId` do EAS em `app.json` já está configurado (`extra.eas.projectId`). Não é mais um placeholder.
+- A URL do PWA carregado pelo WebView vem de `extra.webAppUrl` no `app.json`, lida via `expo-constants` em `WebViewBridge.tsx`. Para apontar para outro ambiente, altere apenas o `app.json`.
+- O bloco `submit` em `eas.json` ainda contém placeholders (`<apple-id>`, `<ascAppId>`, `<team-id>` e `./google-play-key.json`). Preencha antes de rodar `eas submit`.
 
 ## Validação obrigatória
 

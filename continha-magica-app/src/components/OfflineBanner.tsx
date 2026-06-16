@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 export function OfflineBanner() {
   return (
     <View style={styles.banner}>
-      <Text style={styles.text}>📶 Sem conexão — usando versão salva</Text>
+      <Text style={styles.text}>📶 Sem conexão com a internet</Text>
     </View>
   );
 }
