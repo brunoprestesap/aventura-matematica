@@ -263,7 +263,7 @@ export function QuizPage() {
   const gradeConfig = getGradeConfig(selectedGrade);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 pb-24 pt-4 sm:px-4 sm:pb-28 sm:pt-6 md:px-6 md:pb-32 md:pt-8 lg:pt-10">
+    <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 pb-[calc(11rem_+_env(safe-area-inset-bottom))] pt-4 sm:px-4 sm:pb-28 sm:pt-6 md:px-6 md:pb-32 md:pt-8 lg:pt-10">
       <Celebration
         score={score}
         total={questions.length}
