@@ -12,16 +12,23 @@ export async function GET(req: NextRequest) {
   const challenge = req.cookies.get("native-auth-challenge")?.value;
   const redirect = req.cookies.get("native-auth-redirect")?.value;
 
-  // Limpa os cookies de handoff em qualquer caminho de saída.
+  // Limpa os cookies de handoff em qualquer caminho de saída. Cada cookie
+  // precisa do seu próprio header Set-Cookie (combiná-los com vírgula viola a
+  // RFC 6265 e só o primeiro seria apagado).
   const clear = [
     "native-auth-challenge=; Path=/; Max-Age=0",
     "native-auth-redirect=; Path=/; Max-Age=0",
   ];
 
+  function withClearedCookies(headers: Headers): Headers {
+    clear.forEach((c) => headers.append("Set-Cookie", c));
+    return headers;
+  }
+
   if (!session?.user?.id || !challenge || !redirect?.startsWith("continhamagica://")) {
     return new Response("Sessão inválida. Feche e tente novamente.", {
       status: 400,
-      headers: { "Set-Cookie": clear.join(", ") },
+      headers: withClearedCookies(new Headers()),
     });
   }
 
@@ -29,7 +36,8 @@ export async function GET(req: NextRequest) {
   const location = `${redirect}?code=${encodeURIComponent(code)}`;
 
   // 302 manual para o esquema customizado (NextResponse.redirect valida URL http).
-  const headers = new Headers({ Location: location });
-  clear.forEach((c) => headers.append("Set-Cookie", c));
-  return new Response(null, { status: 302, headers });
+  return new Response(null, {
+    status: 302,
+    headers: withClearedCookies(new Headers({ Location: location })),
+  });
 }
