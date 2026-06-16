@@ -14,6 +14,8 @@
 /coverage
 /prisma/test.db
 /prisma/test.db-journal
+/prisma/prisma/test.db
+/prisma/prisma/test.db-journal
 /test-results
 /playwright-report
 /playwright/.cache

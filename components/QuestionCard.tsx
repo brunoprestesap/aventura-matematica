@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryConfig, Question } from "@/lib/questions";
 import { cn } from "@/lib/utils";
+import { Pixel } from "@/components/Pixel";
+import type { PixelPose } from "@/components/Pixel";
 
 export type AnswerStatus = "idle" | "correct" | "incorrect";
 
@@ -27,6 +29,14 @@ export const QuestionCard = memo(
     const isIncorrect = status === "incorrect";
     const isIdle = !isCorrect && !isIncorrect;
 
+    const pixelPose: PixelPose = isCorrect
+      ? "correct"
+      : isIncorrect
+        ? "wrong"
+        : value
+          ? "thinking"
+          : "idle";
+
     return (
       <article
         className={cn(
@@ -38,6 +48,10 @@ export const QuestionCard = memo(
           isIncorrect && "border-red-400 bg-red-50 ring-2 ring-red-300/60"
         )}
       >
+        <div className="absolute -top-3 -right-3 z-10">
+          <Pixel pose={pixelPose} size={48} animated={pixelPose === "correct" || pixelPose === "thinking"} />
+        </div>
+
         {/* Cabeçalho: badge + número + status */}
         <div className="flex items-start justify-between gap-2">
           <Badge
@@ -62,7 +76,7 @@ export const QuestionCard = memo(
             </span>
             {isCorrect && (
               <span
-                className="animate-pop text-xl text-green-500 sm:text-2xl"
+                className="animate-pop-in text-xl text-green-500 sm:text-2xl"
                 aria-label="Correta"
                 role="img"
               >
@@ -71,7 +85,7 @@ export const QuestionCard = memo(
             )}
             {isIncorrect && (
               <span
-                className="animate-pop text-xl text-red-500 sm:text-2xl"
+                className="animate-pop-in text-xl text-red-500 sm:text-2xl"
                 aria-label="Incorreta"
                 role="img"
               >
@@ -112,7 +126,7 @@ export const QuestionCard = memo(
           />
 
           {isIncorrect && (
-            <div className="animate-pop rounded-xl bg-red-100 p-2 sm:p-3">
+            <div className="animate-pop-in rounded-xl bg-red-100 p-2 sm:p-3">
               <p className="text-sm font-bold text-red-700">
                 Resposta certa: {question.answer}
               </p>

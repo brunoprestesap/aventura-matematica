@@ -3,6 +3,7 @@
 import { Grade, GRADES, getGradeConfig } from "@/lib/questions";
 import { cn } from "@/lib/utils";
 import { BookOpen, GraduationCap } from "lucide-react";
+import { Pixel } from "@/components/Pixel";
 
 interface GradeSelectorProps {
   onSelect: (grade: Grade) => void;
@@ -12,7 +13,11 @@ interface GradeSelectorProps {
 export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center justify-center px-4 py-6 text-center sm:min-h-[70vh] sm:py-12">
-      <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-purple-700 shadow-sm sm:text-base">
+      <div className="flex justify-center mb-4">
+        <Pixel pose="idle" size={72} />
+      </div>
+
+      <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-brand-dark shadow-sm sm:text-base">
         <GraduationCap className="size-5" aria-hidden="true" />
         Escolha seu ano
       </div>
@@ -39,10 +44,10 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
               className={cn(
                 "group relative flex min-h-[88px] flex-col items-center justify-center rounded-2xl border-2 bg-white p-2 text-center shadow-sm transition-all duration-200 sm:min-h-[120px] sm:rounded-3xl sm:p-4 md:p-5",
                 "hover:-translate-y-1 hover:shadow-lg active:scale-[0.98]",
-                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-purple-300",
+                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand/30",
                 isSelected
-                  ? "border-purple-500 bg-purple-50 ring-2 ring-purple-300"
-                  : "border-slate-200 hover:border-purple-300"
+                  ? "border-brand bg-brand-light ring-2 ring-brand/30"
+                  : "border-slate-200 hover:border-brand/30"
               )}
             >
               <span
@@ -54,7 +59,7 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
               <span
                 className={cn(
                   "text-sm font-black sm:text-base",
-                  isSelected ? "text-purple-700" : cfg.color
+                  isSelected ? "text-brand-dark" : cfg.color
                 )}
               >
                 {cfg.label}
@@ -64,7 +69,7 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
               </span>
 
               {isSelected && (
-                <span className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-purple-500 text-[10px] text-white shadow-md sm:-right-2 sm:-top-2 sm:size-6 sm:text-xs">
+                <span className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-brand text-[10px] text-white shadow-md sm:-right-2 sm:-top-2 sm:size-6 sm:text-xs">
                   ✓
                 </span>
               )}
@@ -74,7 +79,7 @@ export function GradeSelector({ onSelect, currentGrade }: GradeSelectorProps) {
       </div>
 
       <div className="mt-6 flex items-center gap-2 rounded-xl bg-white/60 px-4 py-3 text-sm text-slate-600 shadow-sm backdrop-blur-sm sm:mt-8 sm:text-base">
-        <BookOpen className="size-5 shrink-0 text-purple-600" aria-hidden="true" />
+        <BookOpen className="size-5 shrink-0 text-brand" aria-hidden="true" />
         <span>
           Você pode trocar de ano a qualquer momento usando o botão no topo.
         </span>

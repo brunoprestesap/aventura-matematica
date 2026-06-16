@@ -25,7 +25,7 @@ export function ErrorScreen({ onRetry }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#8B5CF6",
+    backgroundColor: "#0C1A19",
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     textAlign: "center",
   },
-  subtitle: { fontSize: 16, color: "#EDE9FE", textAlign: "center" },
+  subtitle: { fontSize: 16, color: "#F8FFFE", textAlign: "center" },
   button: {
     marginTop: 8,
     backgroundColor: "#FFFFFF",
@@ -47,5 +47,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   pressed: { opacity: 0.8 },
-  buttonText: { color: "#8B5CF6", fontWeight: "700", fontSize: 16 },
+  buttonText: { color: "#0D9488", fontWeight: "700", fontSize: 16 },
 });

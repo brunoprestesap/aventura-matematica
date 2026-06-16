@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "Aventura Matemática",
-    "slug": "aventura-matematica",
+    "name": "Continha Mágica",
+    "slug": "continha-magica",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "aventuramatematica",
+    "scheme": "continhamagica",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#8B5CF6"
+      "backgroundColor": "#0C1A19"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "br.com.aventuramatematica.app",
+      "bundleIdentifier": "br.com.continhamagica.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -22,9 +22,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#8B5CF6"
+        "backgroundColor": "#0C1A19"
       },
-      "package": "br.com.aventuramatematica.app",
+      "package": "br.com.continhamagica.app",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"
@@ -35,14 +35,14 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#8B5CF6",
+          "backgroundColor": "#0C1A19",
           "image": "./assets/splash.png",
           "imageWidth": 200
         }
       ]
     ],
     "extra": {
-      "webAppUrl": "https://aventura-matematica.vercel.app",
+      "webAppUrl": "https://continha-magica.vercel.app",
       "router": {},
       "eas": {
         "projectId": "f542064c-a0f8-4ff5-af33-7c1f0a5efaa0"

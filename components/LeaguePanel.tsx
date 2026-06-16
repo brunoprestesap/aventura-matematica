@@ -50,7 +50,7 @@ export function LeaguePanel() {
         </p>
         <button
           onClick={() => signIn("google")}
-          className="rounded-lg bg-violet-600 px-6 py-2 text-sm font-medium text-white hover:bg-violet-700"
+          className="rounded-lg bg-brand px-6 py-2 text-sm font-medium text-white hover:bg-brand-dark"
         >
           Entrar com Google
         </button>
@@ -61,7 +61,7 @@ export function LeaguePanel() {
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-violet-600 border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand border-t-transparent" />
       </div>
     );
   }
@@ -124,7 +124,7 @@ export function LeaguePanel() {
             key={entry.userId}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
-              entry.isCurrentUser && "bg-violet-50 font-medium dark:bg-violet-950",
+              entry.isCurrentUser && "bg-brand-light font-medium dark:bg-bg-dark",
               entry.zone === "promotion" && "border-l-2 border-green-500",
               entry.zone === "demotion" && "border-l-2 border-red-400"
             )}
@@ -140,7 +140,7 @@ export function LeaguePanel() {
                 className="h-6 w-6 rounded-full"
               />
             ) : (
-              <div className="h-6 w-6 rounded-full bg-violet-200 dark:bg-violet-800" />
+              <div className="h-6 w-6 rounded-full bg-brand-light dark:bg-bg-dark" />
             )}
             <span className="flex-1 truncate">{entry.name}</span>
             <span className="font-mono text-xs text-muted-foreground">

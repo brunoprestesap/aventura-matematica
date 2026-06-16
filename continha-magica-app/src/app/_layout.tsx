@@ -10,7 +10,7 @@ export default function RootLayout() {
         status bar — necessário para edge-to-edge correto no Android 16.
         O padding é controlado via useSafeAreaInsets nas telas filhas.
       */}
-      <StatusBar style="light" backgroundColor="#8B5CF6" translucent />
+      <StatusBar style="light" backgroundColor="#0C1A19" translucent />
       <Stack screenOptions={{ headerShown: false }} />
     </SafeAreaProvider>
   );

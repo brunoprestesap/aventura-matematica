@@ -1,6 +1,6 @@
-# Aventura Matemática
+# Continha Mágica
 
-Site de atividades de matemática para estudantes do 4º ano do ensino fundamental (9-10 anos).
+Site de atividades de matemática para estudantes do ensino fundamental (1º ao 9º ano).
 
 A cada carregamento da página, 20 questões aleatórias são geradas nas categorias:
 

@@ -38,6 +38,6 @@ describe("notifyUserNameChanged", () => {
 
 describe("chave de localStorage", () => {
   it("usa a chave documentada", () => {
-    expect(USER_NAME_KEY).toBe("aventura-matematica-user-name");
+    expect(USER_NAME_KEY).toBe("continha-magica-user-name");
   });
 });

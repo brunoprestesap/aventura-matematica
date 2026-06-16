@@ -90,4 +90,5 @@ for (const grade of GRADES) {
   }
 }
 
+// Teste de geração de questões — Continha Mágica
 console.log("\n✓ Todos os testes passaram para todos os anos!");

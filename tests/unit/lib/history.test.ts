@@ -93,6 +93,6 @@ describe("formatActivityDate", () => {
 
 describe("chave de localStorage", () => {
   it("usa a chave documentada", () => {
-    expect(HISTORY_KEY).toBe("aventura-matematica-history");
+    expect(HISTORY_KEY).toBe("continha-magica-history");
   });
 });

@@ -14,7 +14,7 @@ Este projeto usa **Next.js 16.2.9** (App Router). Antes de escrever qualquer có
 
 ---
 
-# AGENTS.md — Aventura Matemática
+# AGENTS.md — Continha Mágica
 
 Arquivo de referência para agentes de IA que forem trabalhar neste projeto. Leia este documento antes de fazer alterações.
 
@@ -22,7 +22,7 @@ Arquivo de referência para agentes de IA que forem trabalhar neste projeto. Lei
 
 ## Visão geral do projeto
 
-**Aventura Matemática** é uma aplicação web de atividades de matemática para estudantes do ensino fundamental (1º ao 9º ano). A cada carregamento da página são geradas 20 questões aleatórias, distribuídas entre seis categorias:
+**Continha Mágica** é um site de atividades de matemática para estudantes do ensino fundamental (1º ao 9º ano). A cada carregamento da página são geradas 20 questões aleatórias, distribuídas entre seis categorias:
 
 - Adição
 - Subtração
@@ -35,7 +35,34 @@ O aluno informa seu nome, seleciona o ano escolar, responde as questões e clica
 
 O idioma do projeto é o **português brasileiro (pt-BR)**, tanto na interface quanto nos comentários e documentação.
 
-Além do projeto Next.js na raiz, existe o diretório `aventura-matematica-app/`, que contém um **shell nativo** (Expo + React Native + WebView) para empacotar o PWA nas lojas de aplicativos.
+Além do projeto Next.js na raiz, existe o diretório `continha-magica-app/`, que contém um **shell nativo** (Expo + React Native + WebView) para empacotar o PWA nas lojas de aplicativos.
+
+---
+
+## Identidade visual
+
+| Elemento | Valor |
+|---|---|
+| Nome do produto | Continha Mágica |
+| Mascote | Pixel (gato teal) |
+| Slogan | matemática que encanta |
+| Tipografia | Space Grotesk (Google Fonts) |
+| Cor primária de marca | `#0D9488` (Teal) |
+| Cor de destaque / Pixel | `#2DD4BF` (Teal claro) |
+| Componente mascote | `components/Pixel.tsx` — props: pose, size, animated, className |
+| Poses disponíveis | idle (neutro), correct (acerto), wrong (erro), thinking (digitando) |
+| Cor de fundo escuro | `#0C1A19` (Floresta) |
+| Cor de fundo suave | `#CCFBF1` (Névoa teal) |
+| Cor de fundo da página | `#F8FFFE` |
+| XP / estrelas | `#EAB308` (Mel) |
+| Badge XP | `#FEF9C3` (Mel suave) |
+| Acerto | `#10B981` |
+| Erro | `#EF4444` |
+
+Tom de voz: encantador, encorajador, nunca punitivo. Frases de feedback
+usam metáforas de magia e aventura. O mascote Pixel reage a acertos,
+erros e combos com frases específicas definidas em `components/Celebration.tsx`
+e nos feedbacks inline do `QuizPage.tsx`.
 
 ---
 
@@ -71,7 +98,7 @@ Além do projeto Next.js na raiz, existe o diretório `aventura-matematica-app/`
 - `vitest.config.ts`: configuração do Vitest com ambiente `jsdom`, setup em `vitest.setup.ts`, cobertura mínima e `fileParallelism: false` para testes de API.
 - `playwright.config.ts`: testes E2E com Chromium, servidor de desenvolvimento iniciado automaticamente.
 
-### App nativo (`aventura-matematica-app/`)
+### App nativo (`continha-magica-app/`)
 
 | Tecnologia | Versão / Observação |
 |------------|---------------------|
@@ -109,6 +136,7 @@ components/                   # Componentes React
   HistoryPanel.tsx            # Modal com histórico de atividades
   LeaguePanel.tsx             # Painel da liga semanal (login, placar, zonas)
   Celebration.tsx             # Animação de confete para 18+ acertos
+  Pixel.tsx                   # Mascote SVG com 4 poses: idle | correct | wrong | thinking
   InstallPrompt.tsx           # Modal de orientação para instalação do PWA
 
 lib/                          # Utilitários e lógica de negócio
@@ -126,6 +154,11 @@ prisma/
   schema.test.prisma          # Schema SQLite para testes de API routes
   test.db                     # Banco SQLite de testes (gerado, não commitado)
 
+assets/                       # Arquivos-fonte dos ícones e splash (SVGs)
+  icon-source.svg             # Ícone mestre com fundo #0C1A19
+  icon-source-adaptive.svg    # Ícone mestre sem fundo (Android adaptive)
+  splash-source.svg           # Splash screen mestre (1284×2778)
+
 public/                       # Arquivos estáticos
   manifest.json               # Manifesto do PWA
   sw.js                       # Service worker para cache offline
@@ -134,6 +167,7 @@ public/                       # Arquivos estáticos
 
 scripts/                      # Scripts auxiliares (não fazem parte do build)
   test-questions.ts           # Validação da geração de questões por ano
+  generate-icons.ts           # Gera PNGs de ícones/splash a partir dos SVGs-fonte
 
 tests/                        # Suíte de testes
   unit/lib/                   # Testes unitários de lógica pura
@@ -141,7 +175,11 @@ tests/                        # Suíte de testes
   api/                        # Testes de integração das API routes
   e2e/                        # Testes end-to-end com Playwright
 
-aventura-matematica-app/      # Shell nativo do app (Expo + WebView)
+continha-magica-app/          # Shell nativo do app (Expo + WebView)
+  assets/
+    icon.png                  # Ícone do app (1024×1024)
+    adaptive-icon.png         # Foreground do ícone adaptativo Android
+    splash.png                # Splash screen (1284×2778)
   src/
     app/                      # Rotas do Expo Router
     components/               # WebViewBridge, LoadingScreen, ErrorScreen, OfflineBanner
@@ -158,7 +196,7 @@ aventura-matematica-app/      # Shell nativo do app (Expo + WebView)
 2. `QuizPageLoader` importa dinamicamente `QuizPage` com `ssr: false`, garantindo que toda a lógica do quiz rode apenas no cliente (necessário por causa do `localStorage`).
 3. `QuizPage` gerencia estados de:
    - Nome do usuário (`lib/user.ts`)
-   - Ano selecionado (persistido em `localStorage` com chave `aventura-matematica-grade`)
+   - Ano selecionado (persistido em `localStorage` com chave `continha-magica-grade`)
    - Respostas, submissão e pontuação
    - Histórico de atividades (`lib/history.ts`)
 4. Questões são geradas puramente no cliente por `generateQuestions(20, grade)` em `lib/questions.ts`.
@@ -166,8 +204,8 @@ aventura-matematica-app/      # Shell nativo do app (Expo + WebView)
 
 ### Fluxo do app nativo
 
-1. O app nativo carrega o PWA publicado em `https://aventura-matematica.vercel.app` dentro de um `WebView`.
-2. O `WebViewBridge` sincroniza `SecureStore` (nativo) com `localStorage` do PWA para as chaves `aventura-matematica-grade`, `aventura-matematica-history` e `aventura-matematica-user-name`.
+1. O app nativo carrega o PWA publicado em `https://continha-magica.vercel.app` dentro de um `WebView`.
+2. O `WebViewBridge` sincroniza `SecureStore` (nativo) com `localStorage` do PWA para as chaves `continha-magica-grade`, `continha-magica-history` e `continha-magica-user-name`.
 3. O app detecta conectividade (`useNetworkStatus`) e exibe banner offline quando necessário.
 4. O botão físico de voltar no Android é tratado no `_layout.tsx`.
 
@@ -276,7 +314,7 @@ Depois aplique o schema:
 npm run db:push
 ```
 
-O script usa `dotenv-cli` para carregar `.env.local` antes de invocar o Prisma. Certifique-se de que `DATABASE_URL` no `.env.local` aponte para `postgresql://aventura:aventura@localhost:5432/aventura_matematica?schema=public`.
+O script usa `dotenv-cli` para carregar `.env.local` antes de invocar o Prisma. Certifique-se de que `DATABASE_URL` no `.env.local` aponte para `postgresql://aventura:aventura@localhost:5432/continha_magica?schema=public`.
 
 Para abrir o Prisma Studio:
 
@@ -284,10 +322,10 @@ Para abrir o Prisma Studio:
 npm run db:studio
 ```
 
-### App nativo (`aventura-matematica-app/`)
+### App nativo (`continha-magica-app/`)
 
 ```bash
-cd aventura-matematica-app
+cd continha-magica-app
 npm install
 
 # Verificar saúde do projeto
@@ -402,7 +440,7 @@ import { generateQuestions } from "@/lib/questions";
 import { cn } from "@/lib/utils";
 ```
 
-No app nativo, use os aliases configurados em `aventura-matematica-app/tsconfig.json`:
+No app nativo, use os aliases configurados em `continha-magica-app/tsconfig.json`:
 
 ```tsx
 import { WebViewBridge } from "@/components/WebViewBridge";
@@ -416,12 +454,15 @@ import { WebViewBridge } from "@/components/WebViewBridge";
 - `public/sw.js`: service worker simples que pré-cacheia `/` e `/manifest.json` e faz cache runtime de assets estáticos.
 - `app/layout.tsx`: registra o service worker via `navigator.serviceWorker.register('/sw.js')`.
 - `components/InstallPrompt.tsx`: exibe instruções de instalação para Android e iOS.
+- `assets/icon-source.svg` e `assets/icon-source-adaptive.svg`: arquivos-fonte SVG dos ícones.
+- `scripts/generate-icons.ts`: gera todos os PNGs (PWA, Expo e splash) a partir dos SVGs-fonte via `sharp`.
 
 > ⚠️ **Ao atualizar o projeto:** em qualquer deploy que altere assets, siga estes passos obrigatórios:
 >
-> 1. Incremente a constante `CACHE_NAME` em `public/sw.js` (ex: `aventura-matematica-v1` → `aventura-matematica-v2`) para invalidar o cache antigo.
+> 1. Incremente a constante `CACHE_NAME` em `public/sw.js` (ex: `continha-magica-v2` → `continha-magica-v3`) para invalidar o cache antigo.
 > 2. Valide `public/manifest.json` com um linter de JSON antes do commit.
 > 3. Verifique que `public/icons/` contém os três tamanhos: `icon-192x192.png`, `icon-512x512.png` e `maskable-icon-512x512.png`.
+> 4. Regenere os PNGs com `npx tsx scripts/generate-icons.ts` sempre que os SVGs-fonte forem alterados.
 
 ---
 
@@ -433,9 +474,10 @@ A aplicação armazena dados no `localStorage` do navegador com as seguintes cha
 
 | Chave | Propósito | Gerenciado em |
 |-------|-----------|---------------|
-| `aventura-matematica-grade` | Ano escolar selecionado | `components/QuizPage.tsx` |
-| `aventura-matematica-history` | Histórico de atividades | `lib/history.ts` |
-| `aventura-matematica-user-name` | Nome do usuário | `lib/user.ts` |
+| `continha-magica-grade` | Ano escolar selecionado | `components/QuizPage.tsx` |
+| `continha-magica-history` | Histórico de atividades | `lib/history.ts` |
+| `continha-magica-user-name` | Nome do usuário | `lib/user.ts` |
+| `continha-magica-migrated-v1` | Controle de migração do rebrand | `lib/migrate.ts` |
 
 Os hooks `useStoredGrade`, `useHistory` e `useUserName` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
 
@@ -480,13 +522,19 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 
 O projeto está configurado para deploy na **Vercel**. O arquivo `.vercel/project.json` contém as informações do projeto e não deve ser commitado em repositórios públicos.
 
+```json
+{
+  "projectName": "continha-magica"
+}
+```
+
 O build inclui API routes serverless e depende do PostgreSQL para o sistema de ligas. Não há pipelines de CI/CD configuradas no repositório (nenhuma pasta `.github/workflows`, `.gitlab-ci.yml`, etc.).
 
 ### App nativo
 
-O app nativo usa **EAS (Expo Application Services)**. As configurações de build e submit estão em `aventura-matematica-app/eas.json`. O `projectId` do EAS está configurado em `aventura-matematica-app/app.json`.
+O app nativo usa **EAS (Expo Application Services)**. As configurações de build e submit estão em `continha-magica-app/eas.json`. O `projectId` do EAS está configurado em `continha-magica-app/app.json`.
 
-O app carrega a web app da URL definida em `extra.webAppUrl` no `app.json` (`https://aventura-matematica.vercel.app`). Ao alterar o PWA, o app nativo reflete as mudanças automaticamente (exceto atualizações nativas que exijam novo build).
+O app carrega a web app da URL definida em `extra.webAppUrl` no `app.json` (`https://continha-magica.vercel.app`). Ao alterar o PWA, o app nativo reflete as mudanças automaticamente (exceto atualizações nativas que exijam novo build).
 
 ---
 
@@ -525,7 +573,7 @@ As escolhas abaixo são intencionais. Não as reverta sem discutir com o mantene
 - **Backend ativo (sistema de ligas):** o projeto possui backend PostgreSQL + Prisma para o sistema de ligas semanais. A lógica de quiz continua 100% client-side. O backend existe exclusivamente para: autenticação (NextAuth v5 + Google), registro de sessões (`POST /api/session`), placar semanal (`GET /api/liga/semana`) e cron de promoção/rebaixamento (`GET /api/cron/liga`).
 - **SSR desabilitado via `ssr: false`**: o `QuizPageLoader` usa `dynamic(..., { ssr: false })` propositalmente. Não remova essa configuração — ela é necessária para o acesso ao `localStorage` funcionar corretamente.
 - **Geração de questões no cliente**: `generateQuestions` roda no cliente a cada carregamento. Isso é intencional para garantir questões sempre novas sem necessidade de API.
-- **App nativo como shell de WebView**: o diretório `aventura-matematica-app/` não reescreve a lógica do PWA. Ele apenas empacota a web app publicada em um WebView nativo.
+- **App nativo como shell de WebView**: o diretório `continha-magica-app/` não reescreve a lógica do PWA. Ele apenas empacota a web app publicada em um WebView nativo.
 
 ---
 
@@ -540,10 +588,14 @@ As escolhas abaixo são intencionais. Não as reverta sem discutir com o mantene
 - **NÃO** calcule XP no cliente — o cálculo é sempre feito em `lib/league.ts` no servidor.
 - **NÃO** exponha o `CRON_SECRET` ou `AUTH_SECRET` em código ou logs.
 - **NÃO** altere a lógica de geração de questões em `lib/questions.ts` sem rodar `npx tsx scripts/test-questions.ts` e confirmar que os resultados são válidos para todos os anos (1º ao 9º).
-- **NÃO** modifique o PWA a partir do diretório `aventura-matematica-app/`. O projeto Next.js fica na raiz.
+- **NÃO** modifique o PWA a partir do diretório `continha-magica-app/`. O projeto Next.js fica na raiz.
 - **NÃO** use `SafeAreaView` do `react-native` no app nativo. Use `useSafeAreaInsets` de `react-native-safe-area-context`.
 - **NÃO** teste o app nativo no Expo Go. `react-native-webview` exige Development Build.
 - **NÃO** adicione `newArchEnabled` ao `app.json` do app nativo. A Legacy Architecture foi removida no React Native 0.82.
+- **NÃO** use o nome "Aventura Matemática" em nenhum arquivo novo — o nome
+  do produto é "Continha Mágica" desde o rebrand de junho/2026.
+- **NÃO** use cores da paleta roxa anterior (`#C084FC`, `#8B5CF6`, `#1A1A2E`)
+  — a paleta definitiva é Teal & Mel desde junho/2026.
 
 ---
 
@@ -564,4 +616,4 @@ As escolhas abaixo são intencionais. Não as reverta sem discutir com o mantene
 - Repositório local: `/Users/brunoprestes/projects/aventura-matematica`
 - Documentação do Next.js 16: `node_modules/next/dist/docs/`
 - README para usuários humanos: `README.md`
-- Regras específicas do app nativo: `aventura-matematica-app/AGENTS.md`
+- Regras específicas do app nativo: `continha-magica-app/AGENTS.md`

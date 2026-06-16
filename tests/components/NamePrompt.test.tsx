@@ -6,13 +6,13 @@ import { NamePrompt } from "@/components/NamePrompt";
 describe("NamePrompt", () => {
   it("renderiza título e input", () => {
     render(<NamePrompt onSubmit={() => {}} />);
-    expect(screen.getByText(/Como devo te chamar\?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bem-vindo ao Continha Mágica!/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Seu nome/i)).toBeInTheDocument();
   });
 
   it("desabilita o botão quando o input está vazio", () => {
     render(<NamePrompt onSubmit={() => {}} />);
-    expect(screen.getByRole("button", { name: /Começar aventura/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Começar a magia/i })).toBeDisabled();
   });
 
   it("submete o nome trimado ao clicar no botão", async () => {
@@ -22,7 +22,7 @@ describe("NamePrompt", () => {
     const input = screen.getByLabelText(/Seu nome/i);
     await userEvent.type(input, "  Ana  ");
 
-    const button = screen.getByRole("button", { name: /Começar aventura/i });
+    const button = screen.getByRole("button", { name: /Começar a magia/i });
     expect(button).toBeEnabled();
 
     await userEvent.click(button);

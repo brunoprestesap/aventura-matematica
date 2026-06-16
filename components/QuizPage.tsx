@@ -41,6 +41,13 @@ import {
   X,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import { migrateLocalStorage } from "@/lib/migrate";
+
+// Migra os dados das chaves antigas (Aventura Matemática) ao carregar o módulo,
+// antes de qualquer leitura síncrona do localStorage feita pelos hooks de store.
+// O módulo só roda no cliente (QuizPageLoader usa ssr: false) e a função é
+// idempotente e protegida por guarda `typeof window`.
+migrateLocalStorage();
 
 const LeaguePanel = dynamic(
   () => import("@/components/LeaguePanel").then((mod) => mod.LeaguePanel),
@@ -52,7 +59,7 @@ const LeaguePanel = dynamic(
   }
 );
 
-const STORAGE_KEY = "aventura-matematica-grade";
+const STORAGE_KEY = "continha-magica-grade";
 
 function readStoredGrade(): Grade | null {
   if (typeof window === "undefined") return null;
@@ -236,7 +243,7 @@ export function QuizPage() {
 
   if (userName === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-50 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
+      <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
         <NamePrompt onSubmit={handleSetName} />
       </div>
     );
@@ -244,7 +251,7 @@ export function QuizPage() {
 
   if (selectedGrade === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-50 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
+      <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
         <GradeSelector
           onSelect={handleSelectGrade}
           currentGrade={isSelecting ? storedGrade : null}
@@ -256,7 +263,7 @@ export function QuizPage() {
   const gradeConfig = getGradeConfig(selectedGrade);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-purple-50 to-pink-100 px-3 pb-24 pt-4 sm:px-4 sm:pb-28 sm:pt-6 md:px-6 md:pb-32 md:pt-8 lg:pt-10">
+    <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 pb-24 pt-4 sm:px-4 sm:pb-28 sm:pt-6 md:px-6 md:pb-32 md:pt-8 lg:pt-10">
       <Celebration
         score={score}
         total={questions.length}
@@ -266,16 +273,16 @@ export function QuizPage() {
       <main className="mx-auto max-w-5xl">
         {/* Header */}
         <header className="mb-4 text-center sm:mb-6 md:mb-8">
-          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-purple-700 shadow-sm sm:mb-3 sm:gap-2 sm:px-5 sm:py-2 sm:text-sm md:text-base">
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-brand-dark shadow-sm sm:mb-3 sm:gap-2 sm:px-5 sm:py-2 sm:text-sm md:text-base">
             <Sparkles className="size-4 sm:size-5" aria-hidden="true" />
-            Aventura Matemática
+            Continha Mágica
           </div>
           <h1 className="mb-1 text-xl font-black tracking-tight text-slate-800 sm:mb-2 sm:text-3xl md:text-4xl lg:text-5xl">
             Hora de praticar! 🚀
           </h1>
           <p className="mx-auto max-w-xl px-1 text-sm leading-snug text-slate-600 sm:text-base md:text-lg lg:text-xl">
             Resolva as 20 questões abaixo. Quando terminar, clique em{" "}
-            <strong className="text-purple-700">Verificar respostas</strong>.
+            <strong className="text-brand-dark">Verificar respostas</strong>.
           </p>
 
           {/* Ano selecionado + ações */}
@@ -297,7 +304,7 @@ export function QuizPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsSelecting(true)}
-                className="rounded-full border-purple-200 px-3 text-xs text-purple-700 hover:bg-purple-50 hover:text-purple-800 sm:px-4 sm:text-sm"
+                className="rounded-full border-brand-light px-3 text-xs text-brand-dark hover:bg-brand-light hover:text-brand-dark sm:px-4 sm:text-sm"
               >
                 <GraduationCap
                   className="mr-1 size-3.5 sm:size-4"
@@ -311,7 +318,7 @@ export function QuizPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setLeagueOpen(true)}
-                className="rounded-full border-purple-200 px-3 text-xs text-purple-700 hover:bg-purple-50 hover:text-purple-800 sm:px-4 sm:text-sm"
+                className="rounded-full border-brand-light px-3 text-xs text-brand-dark hover:bg-brand-light hover:text-brand-dark sm:px-4 sm:text-sm"
               >
                 <Trophy
                   className="mr-1 size-3.5 sm:size-4"
@@ -335,7 +342,7 @@ export function QuizPage() {
             </div>
             <div className="h-4 w-full overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-brand to-pink-500 transition-all duration-500 ease-out"
                 style={{ width: `${(answeredCount / questions.length) * 100}%` }}
                 aria-valuenow={answeredCount}
                 aria-valuemax={questions.length}
@@ -347,12 +354,12 @@ export function QuizPage() {
 
         {/* Resultado */}
         {submitted && (
-          <div className="mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-purple-200 sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-700 sm:text-sm">
+          <div className="mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-brand-light sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-light px-3 py-1 text-xs font-bold text-brand-dark sm:text-sm">
               <Trophy className="size-4 sm:size-5" aria-hidden="true" />
               Resultado
             </div>
-            <p className="mb-1 text-2xl font-black text-purple-700 sm:text-3xl md:text-4xl lg:text-5xl">
+            <p className="mb-1 text-2xl font-black text-brand-dark sm:text-3xl md:text-4xl lg:text-5xl">
               Você acertou {score} de {questions.length}! 🎉
             </p>
             <p className="text-sm text-slate-500 sm:text-base">
@@ -404,7 +411,7 @@ export function QuizPage() {
               <Button
                 size="lg"
                 onClick={handleNewQuestions}
-                className="h-12 w-full rounded-xl bg-purple-500 px-6 text-base font-bold text-white shadow-md transition-colors hover:bg-purple-600 active:scale-[0.98] sm:h-14 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-lg"
+                className="h-12 w-full rounded-xl bg-brand px-6 text-base font-bold text-white shadow-md transition-colors hover:bg-brand-dark active:scale-[0.98] sm:h-14 sm:w-auto sm:rounded-2xl sm:px-8 sm:text-lg"
               >
                 <RotateCcw
                   className="mr-2 size-5 sm:size-6"
@@ -419,7 +426,7 @@ export function QuizPage() {
                 type="button"
                 variant="ghost"
                 onClick={focusFirstUnanswered}
-                className="h-auto min-h-10 w-full px-2 py-1 text-xs font-medium text-slate-500 hover:text-purple-600 sm:w-auto sm:text-sm"
+                className="h-auto min-h-10 w-full px-2 py-1 text-xs font-medium text-slate-500 hover:text-brand sm:w-auto sm:text-sm"
               >
                 Faltam {questions.length - answeredCount} questões — ir para a
                 próxima
@@ -441,8 +448,8 @@ export function QuizPage() {
               className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between border-b border-slate-100 bg-purple-50 p-4">
-                <div className="flex items-center gap-2 text-purple-700">
+              <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
+                <div className="flex items-center gap-2 text-brand-dark">
                   <Trophy className="size-5" aria-hidden="true" />
                   <h2 className="text-base font-black sm:text-lg">
                     Liga semanal
@@ -453,7 +460,7 @@ export function QuizPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setLeagueOpen(false)}
-                  className="rounded-full text-slate-500 hover:bg-purple-100 hover:text-purple-700"
+                  className="rounded-full text-slate-500 hover:bg-brand-light hover:text-brand-dark"
                 >
                   <X className="size-5" aria-hidden="true" />
                   <span className="sr-only">Fechar</span>

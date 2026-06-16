@@ -1,10 +1,10 @@
-# AGENTS.md — Aventura Matemática App
+# AGENTS.md — Continha Mágica App
 
 Arquivo de referência para agentes de IA que trabalharem no app híbrido (Expo + WebView).
 
 ## Visão geral
 
-Este diretório (`aventura-matematica-app/`) contém o **shell nativo** do app Aventura Matemática. Ele não reescreve a lógica do PWA: apenas carrega a web app publicada em `https://aventura-matematica.vercel.app` dentro de um `WebView`, com integrações nativas mínimas para:
+Este diretório (`continha-magica-app/`) contém o **shell nativo** do app Continha Mágica. Ele não reescreve a lógica do PWA: apenas carrega a web app publicada em `https://continha-magica.vercel.app` dentro de um `WebView`, com integrações nativas mínimas para:
 
 - Persistência de dados entre sessões (SecureStore ↔ localStorage).
 - Detecção de conectividade.
@@ -24,6 +24,10 @@ Este diretório (`aventura-matematica-app/`) contém o **shell nativo** do app A
 ## Estrutura de pastas
 
 ```
+assets/
+  icon.png             # Ícone do app (1024×1024), gerado a partir de ../assets/icon-source.svg
+  adaptive-icon.png    # Foreground do ícone adaptativo Android (1024×1024), gerado a partir de ../assets/icon-source-adaptive.svg
+  splash.png           # Splash screen (1284×2778), gerada a partir de ../assets/splash-source.svg
 src/
   app/
     _layout.tsx          # SafeAreaProvider + StatusBar + Stack
@@ -51,9 +55,9 @@ src/
 
 As chaves sincronizadas entre SecureStore e localStorage do PWA são:
 
-- `aventura-matematica-grade`
-- `aventura-matematica-history`
-- `aventura-matematica-user-name`
+- `continha-magica-grade`
+- `continha-magica-history`
+- `continha-magica-user-name`
 
 Essa sincronia é necessária principalmente no iOS, onde o WKWebView pode limpar o localStorage entre sessões de app.
 

@@ -1,187 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
-@source "../components";
-@source "../app";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+/* ─── Tema Continha Mágica — Teal & Mel ───────────────────────── */
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Marca */
+  --brand:         #0D9488;
+  --brand-light:   #2DD4BF;
+  --brand-subtle:  #CCFBF1;
+
+  /* Fundos */
+  --bg-dark:       #0C1A19;
+  --bg-page:       #F8FFFE;
+  --bg-card:       #FFFFFF;
+
+  /* Semânticas */
+  --gold:          #EAB308;
+  --gold-subtle:   #FEF9C3;
+  --success:       #10B981;
+  --success-bg:    #ECFDF5;
+  --error:         #EF4444;
+  --error-bg:      #FEF2F2;
+
+  /* Texto */
+  --text-primary:   #0C1A19;
+  --text-secondary: #374B48;
+  --text-muted:     #9CA3AF;
+
+  /* Bordas */
+  --border:        #CCFBF1;
+  --border-strong: #2DD4BF;
+  --border-focus:  #0D9488;
+
+  /* Raios */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Sombra dos cards */
+  --shadow-card: 0 1px 3px rgba(13, 148, 136, 0.08),
+                 0 4px 16px rgba(13, 148, 136, 0.06);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* ─── Tipografia base ──────────────────────────────────────────── */
+
+html {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    @apply font-sans;
-    scroll-behavior: smooth;
-    -webkit-text-size-adjust: 100%;
-  }
-  body {
-    @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  /* Melhora a área de toque em dispositivos móveis */
-  button,
-  input,
-  a {
-    @apply touch-manipulation;
-  }
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* ─── Tokens Tailwind v4 ───────────────────────────────────────── */
+
+@theme {
+  --color-brand:          #0D9488;
+  --color-brand-light:    #2DD4BF;
+  --color-brand-dark:     #0F766E;
+  --color-brand-subtle:   #CCFBF1;
+  --color-bg-dark:        #0C1A19;
+  --color-bg-page:        #F8FFFE;
+  --color-bg-light:       #F0FDFA;
+  --color-gold:           #EAB308;
+  --color-gold-subtle:    #FEF9C3;
+  --color-success:        #10B981;
+  --color-error:          #EF4444;
+  --color-text-primary:   #0C1A19;
+  --color-text-secondary: #374B48;
+  --color-text-muted:     #9CA3AF;
+  --color-muted-foreground: var(--text-secondary);
+  --color-border:         #CCFBF1;
+
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
+/* ─── shadcn/ui base-nova — remapeamento de tokens ────────────── */
+
+:root {
+  --background:          var(--bg-page);
+  --foreground:          var(--text-primary);
+
+  --card:                var(--bg-card);
+  --card-foreground:     var(--text-primary);
+
+  --primary:             var(--brand);
+  --primary-foreground:  #FFFFFF;
+
+  --secondary:           var(--brand-subtle);
+  --secondary-foreground: var(--brand);
+
+  --muted:               #F0FDFA;
+  --muted-foreground:    var(--text-secondary);
+
+  --accent:              var(--brand-subtle);
+  --accent-foreground:   var(--brand);
+
+  --destructive:         var(--error);
+  --destructive-foreground: #FFFFFF;
+
+  --border:              var(--border);
+  --input:               var(--border);
+  --ring:                var(--brand);
+
+  --radius: var(--radius-md);
 }
 
-@keyframes pop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+/* ─── Inputs e formulários ─────────────────────────────────────── */
+
+input[type="number"],
+input[type="text"] {
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+input[type="number"]:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.18);
 }
 
-.animate-pop {
-  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-}
-
-/* Remove setas do input number em alguns navegadores */
+/* Remove setas de input number */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -189,4 +146,188 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ─── Cards de questão ─────────────────────────────────────────── */
+
+.question-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.question-card:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12),
+              var(--shadow-card);
+}
+
+.question-card.correct {
+  border-color: var(--success);
+  background: var(--success-bg);
+}
+
+.question-card.incorrect {
+  border-color: var(--error);
+  background: var(--error-bg);
+}
+
+/* ─── Botão primário ───────────────────────────────────────────── */
+
+.btn-primary {
+  background: var(--brand);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background: #0a7a70;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* ─── XP e pontuação ───────────────────────────────────────────── */
+
+.xp-badge {
+  background: var(--gold-subtle);
+  color: #78350F;
+  font-weight: 700;
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 2px 10px;
+}
+
+.xp-badge::before {
+  content: "★ ";
+}
+
+/* ─── Liga — zonas de promoção/rebaixamento ────────────────────── */
+
+.zone-promotion {
+  border-left: 3px solid var(--success);
+}
+
+.zone-demotion {
+  border-left: 3px solid var(--error);
+}
+
+/* ─── Animações ────────────────────────────────────────────────── */
+
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  60%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-brand {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.35); }
+  50%       { box-shadow: 0 0 0 8px rgba(13, 148, 136, 0); }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s ease both;
+}
+
+.animate-pulse-brand {
+  animation: pulse-brand 1.5s ease infinite;
+}
+
+/* ── Pixel — animações de pose ──────────────────────────────────── */
+
+@keyframes pixel-think-pulse {
+  0%, 100% { opacity: 0.9; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes pixel-think-pulse-2 {
+  0%, 100% { opacity: 0.65; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.8); }
+}
+
+@keyframes pixel-think-pulse-3 {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 0.15; transform: scale(0.75); }
+}
+
+.animate-pixel-think .animate-think-1 {
+  animation: pixel-think-pulse 1.2s ease-in-out infinite;
+  transform-origin: 66px 31px;
+}
+
+.animate-pixel-think .animate-think-2 {
+  animation: pixel-think-pulse-2 1.2s ease-in-out infinite 0.2s;
+  transform-origin: 74px 24px;
+}
+
+.animate-pixel-think .animate-think-3 {
+  animation: pixel-think-pulse-3 1.2s ease-in-out infinite 0.4s;
+  transform-origin: 80px 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop-in,
+  .animate-slide-up,
+  .animate-pulse-brand,
+  .animate-pixel-think .animate-think-1,
+  .animate-pixel-think .animate-think-2,
+  .animate-pixel-think .animate-think-3 {
+    animation: none;
+  }
+}
+
+/* ─── Scrollbar (WebKit) ───────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-subtle);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-light);
+}
+
+/* ─── Seleção de texto ─────────────────────────────────────────── */
+
+::selection {
+  background: var(--brand-subtle);
+  color: var(--brand);
+}
+
+/* ─── Print ────────────────────────────────────────────────────── */
+
+@media print {
+  body {
+    background: white;
+    color: #000;
+    font-size: 12pt;
+  }
+  .question-card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .no-print {
+    display: none !important;
+  }
 }

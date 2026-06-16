@@ -17,7 +17,7 @@ export function HistoryPanel() {
         variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="rounded-full border-purple-200 px-3 text-xs text-purple-700 hover:bg-purple-50 hover:text-purple-800 sm:px-4 sm:text-sm"
+        className="rounded-full border-brand-light px-3 text-xs text-brand-dark hover:bg-brand-light hover:text-brand-dark sm:px-4 sm:text-sm"
       >
         <History className="mr-1 size-3.5 sm:size-4" aria-hidden="true" />
         Histórico
@@ -35,8 +35,8 @@ export function HistoryPanel() {
             className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 bg-purple-50 p-4">
-              <div className="flex items-center gap-2 text-purple-700">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
+              <div className="flex items-center gap-2 text-brand-dark">
                 <History className="size-5" aria-hidden="true" />
                 <h2 className="text-base font-black sm:text-lg">
                   Histórico de atividades
@@ -47,7 +47,7 @@ export function HistoryPanel() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setOpen(false)}
-                className="rounded-full text-slate-500 hover:bg-purple-100 hover:text-purple-700"
+                className="rounded-full text-slate-500 hover:bg-brand-light hover:text-brand-dark"
               >
                 <X className="size-5" aria-hidden="true" />
                 <span className="sr-only">Fechar</span>
@@ -75,7 +75,7 @@ export function HistoryPanel() {
                     return (
                       <li
                         key={activity.id}
-                        className="rounded-xl border border-slate-100 bg-slate-50 p-3 transition-colors hover:bg-purple-50 sm:rounded-2xl sm:p-4"
+                        className="rounded-xl border border-slate-100 bg-slate-50 p-3 transition-colors hover:bg-brand-light sm:rounded-2xl sm:p-4"
                       >
                         <div className="mb-1 flex items-center justify-between sm:mb-2">
                           <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function HistoryPanel() {
                               {gradeConfig.label}
                             </span>
                           </div>
-                          <div className="flex items-center gap-1 text-sm font-black text-purple-700">
+                          <div className="flex items-center gap-1 text-sm font-black text-brand-dark">
                             <Trophy
                               className="size-4"
                               aria-hidden="true"

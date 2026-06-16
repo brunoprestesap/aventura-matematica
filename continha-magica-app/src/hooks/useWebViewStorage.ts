@@ -8,13 +8,13 @@ import * as SecureStore from "expo-secure-store";
 
   Limite do SecureStore: 2KB por valor.
   Os dados deste app (nome, ano, histórico curto) ficam bem dentro desse limite.
-  Se o histórico crescer além de 2KB, migre "aventura-matematica-history"
+  Se o histórico crescer além de 2KB, migre "continha-magica-history"
   para @react-native-async-storage/async-storage.
 */
 const SYNC_KEYS = [
-  "aventura-matematica-grade",
-  "aventura-matematica-history",
-  "aventura-matematica-user-name",
+  "continha-magica-grade",
+  "continha-magica-history",
+  "continha-magica-user-name",
 ] as const;
 
 type SyncKey = (typeof SYNC_KEYS)[number];

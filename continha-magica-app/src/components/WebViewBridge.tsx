@@ -5,7 +5,7 @@ import { useWebViewStorage } from "@/hooks/useWebViewStorage";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
-const WEB_APP_URL = "https://aventura-matematica.vercel.app";
+const WEB_APP_URL = "https://continha-magica.vercel.app";
 
 /*
   Script injetado ANTES do carregamento do conteúdo da página (BeforeContentLoaded).
@@ -26,16 +26,26 @@ const WEB_APP_URL = "https://aventura-matematica.vercel.app";
 function buildBridgeScript(initialData: Record<string, string>): string {
   return `
 (function() {
+  // Dentro do shell nativo o service worker do PWA não é necessário
+  // e pode causar loops de cache quando cookies/session storage são limpos.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      registrations.forEach(function(reg) { reg.unregister(); });
+    });
+  }
+
   window.__NATIVE_APP__ = true;
   window.__PLATFORM__ = '${Platform.OS}';
 
-  const initialData = ${JSON.stringify(initialData)};
-  Object.entries(initialData).forEach(([key, value]) => {
-    try { localStorage.setItem(key, value); } catch {}
-  });
-
+  // Guarda as funções nativas antes de sobrescrever para pré-popular
+  // o localStorage sem disparar mensagens desnecessárias para o nativo.
   const _set = localStorage.setItem.bind(localStorage);
   const _remove = localStorage.removeItem.bind(localStorage);
+
+  const initialData = ${JSON.stringify(initialData)};
+  Object.entries(initialData).forEach(([key, value]) => {
+    try { _set(key, value); } catch {}
+  });
 
   localStorage.setItem = function(key, value) {
     _set(key, value);
@@ -60,11 +70,14 @@ function buildBridgeScript(initialData: Record<string, string>): string {
 `;
 }
 
+const MAX_AUTO_RELOADS = 3;
+
 export function WebViewBridge() {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
+  const [autoReloadCount, setAutoReloadCount] = useState(0);
   const { saveItem, removeItem, loadAllItems } = useWebViewStorage();
 
   // Carrega os dados persistidos antes de montar o WebView
@@ -102,14 +115,28 @@ export function WebViewBridge() {
   );
 
   const handleRetry = useCallback(() => {
+    setAutoReloadCount(0);
     setHasError(false);
     setIsLoading(true);
     webViewRef.current?.reload();
   }, []);
 
+  const handleLoadStart = useCallback(() => {
+    setIsLoading(true);
+    setAutoReloadCount((count) => {
+      if (count >= MAX_AUTO_RELOADS) {
+        setHasError(true);
+        return count;
+      }
+      return count + 1;
+    });
+  }, []);
+
   // Aguarda o script de bridge estar pronto antes de renderizar o WebView
   if (bridgeScript === null) return <LoadingScreen />;
-  if (hasError) return <ErrorScreen onRetry={handleRetry} />;
+  if (hasError || autoReloadCount >= MAX_AUTO_RELOADS) {
+    return <ErrorScreen onRetry={handleRetry} />;
+  }
 
   return (
     <>
@@ -132,9 +159,12 @@ export function WebViewBridge() {
         // Segurança: bloqueia recursos HTTP em contexto HTTPS
         mixedContentMode="never"
         // User agent — permite que o PWA detecte o contexto nativo
-        applicationNameForUserAgent="AventuraMat/1.0 (ReactNative; Expo)"
+        applicationNameForUserAgent="ContinhaMagica/1.0 (ReactNative; Expo)"
+        // Cookie e armazenamento
+        sharedCookiesEnabled={true}
+        thirdPartyCookiesEnabled={true}
         // Eventos de ciclo de vida
-        onLoadStart={() => setIsLoading(true)}
+        onLoadStart={handleLoadStart}
         onLoadEnd={() => setIsLoading(false)}
         onError={() => {
           setIsLoading(false);

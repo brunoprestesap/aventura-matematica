@@ -1,20 +1,20 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: aventura-matematica-postgres
+    container_name: continha-magica-postgres
     environment:
       POSTGRES_USER: aventura
       POSTGRES_PASSWORD: aventura
-      POSTGRES_DB: aventura_matematica
+      POSTGRES_DB: continha_magica
     ports:
       - "5432:5432"
     volumes:
-      - aventura-matematica-postgres-data:/var/lib/postgresql/data
+      - continha-magica-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U aventura -d aventura_matematica"]
+      test: ["CMD-SHELL", "pg_isready -U aventura -d continha_magica"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
-  aventura-matematica-postgres-data:
+  continha-magica-postgres-data:

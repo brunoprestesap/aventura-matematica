@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { Grade } from "./questions";
 
-export const HISTORY_KEY = "aventura-matematica-history";
+export const HISTORY_KEY = "continha-magica-history";
 export const HISTORY_VERSION = 1;
 
 const EMPTY_HISTORY: ActivityHistory = { version: HISTORY_VERSION, activities: [] };

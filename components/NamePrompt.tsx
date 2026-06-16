@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Smile, Star, Rocket } from "lucide-react";
+import { Pixel } from "@/components/Pixel";
 
 interface NamePromptProps {
   onSubmit: (name: string) => void;
@@ -22,19 +23,24 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
 
   return (
     <div className="flex min-h-full w-full flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 md:px-8">
-      <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-xl shadow-purple-200/60 sm:rounded-[2rem] sm:p-8 md:p-10">
+      <div className="w-full max-w-md rounded-3xl bg-white p-5 shadow-xl shadow-brand-light/60 sm:rounded-[2rem] sm:p-8 md:p-10">
         <div className="mb-6 text-center sm:mb-8">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-purple-100 px-4 py-2 text-sm font-bold text-purple-700 shadow-sm sm:mb-4 sm:text-base">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-light px-4 py-2 text-sm font-bold text-brand-dark shadow-sm sm:mb-4 sm:text-base">
             <Smile className="size-5" aria-hidden="true" />
-            <span>Ei, pequeno matemático!</span>
+            <span>Ei, pequeno mago da matemática!</span>
+          </div>
+
+          <div className="flex flex-col items-center gap-2 mb-6">
+            <Pixel pose="idle" size={96} />
+            <p className="text-sm text-muted-foreground">Olá! Eu sou o Pixel 👋</p>
           </div>
 
           <h2 className="mb-2 text-2xl font-black leading-tight text-slate-800 sm:text-3xl md:text-4xl">
-            Como devo te chamar? 🚀
+            Bem-vindo ao Continha Mágica! 🪄
           </h2>
 
           <p className="mx-auto max-w-xs text-base leading-relaxed text-slate-600 sm:max-w-sm sm:text-lg">
-            Me conta seu nome para deixar a aventura ainda mais divertida!
+            Me conta seu nome para começarmos a nossa aventura mágica!
           </p>
         </div>
 
@@ -51,11 +57,11 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Digite aqui"
+              placeholder="Seu nome de mago..."
               maxLength={30}
               autoFocus
               autoComplete="given-name"
-              className="h-14 w-full rounded-2xl border-2 border-purple-200 bg-slate-50 px-5 text-center text-lg font-bold text-slate-800 shadow-sm placeholder:font-medium placeholder:text-slate-400 focus-visible:border-purple-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-purple-300/50 sm:h-16 sm:text-xl"
+              className="h-14 w-full rounded-2xl border-2 border-brand-light bg-slate-50 px-5 text-center text-lg font-bold text-slate-800 shadow-sm placeholder:font-medium placeholder:text-slate-400 focus-visible:border-brand focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-brand/30 sm:h-16 sm:text-xl"
             />
           </div>
 
@@ -64,10 +70,10 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
               type="submit"
               size="lg"
               disabled={!name.trim()}
-              className="h-14 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 text-base font-bold text-white shadow-lg shadow-purple-300/40 transition-all hover:from-purple-600 hover:to-pink-600 hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 sm:h-16 sm:text-lg"
+              className="h-14 w-full rounded-2xl bg-gradient-to-r from-brand to-pink-500 px-6 text-base font-bold text-white shadow-lg shadow-brand/40 transition-all hover:from-brand-dark hover:to-pink-600 hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 sm:h-16 sm:text-lg"
             >
               <Rocket className="mr-2 size-5" aria-hidden="true" />
-              Começar aventura
+              Começar a magia
             </Button>
           </div>
 

@@ -11,7 +11,7 @@ export function LoadingScreen() {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#8B5CF6",
+    backgroundColor: "#0C1A19",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,

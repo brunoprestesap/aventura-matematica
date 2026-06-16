@@ -7,9 +7,9 @@ test.describe("Fluxo do quiz", () => {
 
   test("usuário completa uma rodada de quiz e vê o resultado", async ({ page }) => {
     // Tela de nome
-    await expect(page.getByText(/Como devo te chamar\?/i)).toBeVisible();
+    await expect(page.getByText(/Bem-vindo ao Continha Mágica!/i)).toBeVisible();
     await page.getByLabel(/Seu nome/i).fill("Ana Teste");
-    await page.getByRole("button", { name: /Começar aventura/i }).click();
+    await page.getByRole("button", { name: /Começar a magia/i }).click();
 
     // Tela de seleção de ano
     await expect(page.getByText(/Em qual ano você está\?/i)).toBeVisible();

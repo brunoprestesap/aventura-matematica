@@ -61,7 +61,7 @@ function AndroidIllustration() {
           <stop offset="100%" stopColor="#E5E7EB" />
         </linearGradient>
         <linearGradient id="appIconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8B5CF6" />
+          <stop offset="0%" stopColor="#0D9488" />
           <stop offset="100%" stopColor="#EC4899" />
         </linearGradient>
       </defs>
@@ -103,7 +103,7 @@ function IOSIllustration() {
           <stop offset="100%" stopColor="#E5E7EB" />
         </linearGradient>
         <linearGradient id="appIconGradientIos" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8B5CF6" />
+          <stop offset="0%" stopColor="#0D9488" />
           <stop offset="100%" stopColor="#EC4899" />
         </linearGradient>
       </defs>
@@ -208,7 +208,7 @@ export function InstallPrompt() {
         "Selecione Adicionar à tela inicial.",
         "Toque em Adicionar na janela de confirmação.",
       ],
-      tip: "O Firefox cria um atalho com o ícone do Aventura Matemática.",
+      tip: "O Firefox cria um atalho com o ícone do Continha Mágica.",
     },
     other: {
       name: "navegador Android",
@@ -240,7 +240,7 @@ export function InstallPrompt() {
         variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="group rounded-full border-purple-200 bg-white/80 px-2.5 text-xs font-semibold text-purple-700 shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-purple-300 hover:bg-purple-50 hover:text-purple-800 hover:shadow-md sm:px-4 sm:text-sm"
+        className="group rounded-full border-brand-light bg-white/80 px-2.5 text-xs font-semibold text-brand shadow-sm backdrop-blur-sm transition-all hover:scale-105 hover:border-brand/30 hover:bg-brand-light hover:text-brand hover:shadow-md sm:px-4 sm:text-sm"
       >
         <Smartphone className="mr-1 size-3.5 transition-transform group-hover:scale-110 sm:size-4" aria-hidden="true" />
         <span className="hidden sm:inline">Instalar app</span>
@@ -268,7 +268,7 @@ export function InstallPrompt() {
             <div className="flex-1 overflow-y-auto overscroll-contain">
               {/* Decorative top gradient */}
               <div className="relative">
-                <div className="h-28 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 sm:h-32" />
+                <div className="h-28 bg-gradient-to-br from-brand via-pink-500 to-orange-400 sm:h-32" />
 
                 {/* Close button */}
                 <button
@@ -289,7 +289,7 @@ export function InstallPrompt() {
               <div className="px-4 pb-5 pt-14 sm:px-6 sm:pb-6 sm:pt-16">
                 {/* Header */}
                 <div className="mb-4 text-center sm:mb-5">
-                  <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-purple-700 sm:mb-2 sm:px-3 sm:py-1 sm:text-xs">
+                  <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-brand-light px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand sm:mb-2 sm:px-3 sm:py-1 sm:text-xs">
                     <Download className="size-3 sm:size-3.5" />
                     Instalação rápida
                   </span>
@@ -300,7 +300,7 @@ export function InstallPrompt() {
                     Colocar na tela inicial
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-500 sm:mt-1 sm:text-sm">
-                    Acesse o Aventura Matemática como um app.
+                    Acesse o Continha Mágica como um app.
                   </p>
                 </div>
 
@@ -311,7 +311,7 @@ export function InstallPrompt() {
                     onClick={() => setSelectedOS("android")}
                     className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition-all duration-200 sm:gap-2 sm:rounded-xl sm:py-3 sm:text-sm ${
                       selectedOS === "android"
-                        ? "bg-white text-purple-700 shadow-sm ring-1 ring-slate-200"
+                        ? "bg-white text-brand shadow-sm ring-1 ring-slate-200"
                         : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-700"
                     }`}
                   >
@@ -323,7 +323,7 @@ export function InstallPrompt() {
                     onClick={() => setSelectedOS("ios")}
                     className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-bold transition-all duration-200 sm:gap-2 sm:rounded-xl sm:py-3 sm:text-sm ${
                       selectedOS === "ios"
-                        ? "bg-white text-purple-700 shadow-sm ring-1 ring-slate-200"
+                        ? "bg-white text-brand shadow-sm ring-1 ring-slate-200"
                         : "text-slate-500 hover:bg-slate-200/50 hover:text-slate-700"
                     }`}
                   >
@@ -334,7 +334,7 @@ export function InstallPrompt() {
 
                 {/* Browser badge */}
                 <div className="mb-3 flex items-center justify-between sm:mb-4">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 text-[10px] font-bold text-purple-700 sm:px-3 sm:py-1.5 sm:text-xs">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-light px-2.5 py-1 text-[10px] font-bold text-brand sm:px-3 sm:py-1.5 sm:text-xs">
                     {selectedOS === "android" ? (
                       <MoreVertical className="size-3 sm:size-3.5" />
                     ) : (
@@ -352,9 +352,9 @@ export function InstallPrompt() {
                   {content.steps.map((step, index) => (
                     <li
                       key={index}
-                      className="group flex gap-3 rounded-xl bg-slate-50 p-2.5 transition-colors hover:bg-purple-50/50 sm:gap-4 sm:rounded-2xl sm:p-3.5"
+                      className="group flex gap-3 rounded-xl bg-slate-50 p-2.5 transition-colors hover:bg-brand-light/50 sm:gap-4 sm:rounded-2xl sm:p-3.5"
                     >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-xs font-black text-white shadow-sm transition-transform group-hover:scale-110 sm:h-8 sm:w-8 sm:rounded-xl sm:text-sm">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand to-pink-500 text-xs font-black text-white shadow-sm transition-transform group-hover:scale-110 sm:h-8 sm:w-8 sm:rounded-xl sm:text-sm">
                         {index + 1}
                       </span>
                       <span className="pt-0.5 text-xs leading-relaxed text-slate-700 sm:pt-1 sm:text-sm">
@@ -365,12 +365,12 @@ export function InstallPrompt() {
                 </ol>
 
                 {/* Tip card */}
-                <div className="mb-4 rounded-xl bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 p-3 sm:mb-5 sm:rounded-2xl sm:p-4">
+                <div className="mb-4 rounded-xl bg-gradient-to-r from-brand-light via-pink-50 to-orange-50 p-3 sm:mb-5 sm:rounded-2xl sm:p-4">
                   <div className="flex items-start gap-2.5 sm:gap-3">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-base shadow-sm sm:h-8 sm:w-8 sm:text-lg">
                       💡
                     </span>
-                    <p className="text-xs font-medium leading-relaxed text-purple-800 sm:text-sm">
+                    <p className="text-xs font-medium leading-relaxed text-brand sm:text-sm">
                       {content.tip}
                     </p>
                   </div>
@@ -396,10 +396,10 @@ export function InstallPrompt() {
                   type="button"
                   size="lg"
                   onClick={handleClose}
-                  className={`w-full rounded-xl text-sm font-bold text-white shadow-lg shadow-purple-500/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/30 active:scale-[0.98] sm:text-base ${
+                  className={`w-full rounded-xl text-sm font-bold text-white shadow-lg shadow-brand/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-brand/30 active:scale-[0.98] sm:text-base ${
                     selectedOS === "android" && showNativeInstall
-                      ? "h-11 bg-purple-500 hover:bg-purple-600 sm:h-12"
-                      : "h-11 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 sm:h-12"
+                      ? "h-11 bg-brand hover:bg-[#0a7a70] sm:h-12"
+                      : "h-11 bg-gradient-to-r from-brand to-pink-500 hover:from-brand-dark hover:to-pink-600 sm:h-12"
                   }`}
                 >
                   Entendi!

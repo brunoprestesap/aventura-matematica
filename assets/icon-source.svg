@@ -1,0 +1,56 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Fundo -->
+  <rect width="1024" height="1024" rx="232" fill="#0C1A19"/>
+
+  <!-- Orelhas -->
+  <path d="M205 448 L277 307 L339 400 L685 400 L747 307 L819 448"
+    stroke="#2DD4BF" stroke-width="26" stroke-linecap="round"
+    stroke-linejoin="round" fill="none"/>
+
+  <!-- Cabeça -->
+  <ellipse cx="512" cy="568" rx="256" ry="222" fill="#2DD4BF"/>
+
+  <!-- Olho esquerdo -->
+  <ellipse cx="408" cy="534" rx="52" ry="60" fill="#0C1A19"/>
+  <ellipse cx="420" cy="520" rx="18" ry="22" fill="#CCFBF1"/>
+
+  <!-- Olho direito -->
+  <ellipse cx="616" cy="534" rx="52" ry="60" fill="#0C1A19"/>
+  <ellipse cx="628" cy="520" rx="18" ry="22" fill="#CCFBF1"/>
+
+  <!-- Nariz -->
+  <ellipse cx="512" cy="618" rx="38" ry="24" fill="#0D9488"/>
+
+  <!-- Boca -->
+  <path d="M440 666 Q512 712 584 666"
+    stroke="#0A7A70" stroke-width="18"
+    stroke-linecap="round" fill="none"/>
+
+  <!-- Bigodes esquerda -->
+  <line x1="172" y1="544" x2="318" y2="556"
+    stroke="#0D9488" stroke-width="14" stroke-linecap="round"/>
+  <line x1="172" y1="582" x2="318" y2="582"
+    stroke="#0D9488" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Bigodes direita -->
+  <line x1="706" y1="556" x2="852" y2="544"
+    stroke="#0D9488" stroke-width="14" stroke-linecap="round"/>
+  <line x1="706" y1="582" x2="852" y2="582"
+    stroke="#0D9488" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Corpo -->
+  <ellipse cx="512" cy="716" rx="128" ry="56" fill="#0D9488" opacity="0.45"/>
+  <path d="M308 698 Q246 790 278 850 Q348 878 512 872 Q676 878 746 850 Q778 790 716 698"
+    fill="#2DD4BF"/>
+  <path d="M360 780 Q512 832 664 780"
+    stroke="#0D9488" stroke-width="12"
+    fill="none" stroke-linecap="round"/>
+
+  <!-- Emblema × (amuleto dourado) -->
+  <circle cx="756" cy="350" r="110" fill="#EAB308"/>
+  <line x1="706" y1="300" x2="806" y2="400" stroke="#0C1A19" stroke-width="28" stroke-linecap="round"/>
+  <line x1="806" y1="300" x2="706" y2="400" stroke="#0C1A19" stroke-width="28" stroke-linecap="round"/>
+
+</svg>

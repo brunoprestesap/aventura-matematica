@@ -1,5 +1,5 @@
 {
-  "name": "aventura-matematica",
+  "name": "continha-magica",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -48,6 +48,7 @@
     "jsdom": "^29.1.1",
     "node-mocks-http": "^1.17.2",
     "prisma": "^6.19.3",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",

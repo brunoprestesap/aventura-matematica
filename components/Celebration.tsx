@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import type { Options as ConfettiOptions } from "canvas-confetti";
+import { Pixel } from "@/components/Pixel";
 
 interface CelebrationProps {
   score: number;
@@ -88,20 +89,23 @@ export function Celebration({ score, total, trigger }: CelebrationProps) {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex items-start justify-center overflow-hidden px-3 sm:px-4"
+      className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-start overflow-hidden px-3 sm:px-4"
       role="status"
       aria-live="polite"
     >
-      <div
-        className={cn(
-          "mt-12 max-w-[92vw] rounded-full px-4 py-2.5 text-center text-sm font-black text-yellow-900 shadow-2xl ring-4 ring-yellow-200/80 sm:mt-16 sm:px-6 sm:py-3 sm:text-lg md:mt-20 md:px-8 md:py-4 md:text-2xl lg:text-3xl",
-          !prefersReducedMotion && "animate-pop"
-        )}
-        style={{ background: "linear-gradient(135deg, #fde047, #facc15)" }}
-      >
-        {score === total
-          ? "🌟 Você é demais! Acertou tudo! 🌟"
-          : "🎉 Muito bem! Quase perfeito! 🎉"}
+      <div className="mt-8 flex flex-col items-center gap-3 sm:mt-12">
+        <Pixel pose="correct" size={140} animated />
+        <div
+          className={cn(
+            "max-w-[92vw] rounded-full px-4 py-2.5 text-center text-sm font-black text-yellow-900 shadow-2xl ring-4 ring-yellow-200/80 sm:px-6 sm:py-3 sm:text-lg md:px-8 md:py-4 md:text-2xl lg:text-3xl",
+            !prefersReducedMotion && "animate-pop-in"
+          )}
+          style={{ background: "linear-gradient(135deg, #fde047, #facc15)" }}
+        >
+          {score === total
+            ? "✨ Que feitiço incrível! Você acertou tudo! ✨"
+            : "🪄 Missão mágica concluída! Você é um verdadeiro mago da matemática! 🪄"}
+        </div>
       </div>
     </div>
   );
