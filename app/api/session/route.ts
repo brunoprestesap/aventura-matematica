@@ -8,6 +8,7 @@ interface SessionPayload {
   grade: number;        // 1–9
   correct: number;      // 0–20
   answers: boolean[];   // array de booleanos
+  clientId?: string;    // id estável do registro local (dedup do histórico)
 }
 
 export async function POST(req: NextRequest) {
@@ -32,6 +33,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
   }
 
+  // clientId é opcional; se vier, precisa ser uma string curta
+  if (body.clientId !== undefined &&
+      (typeof body.clientId !== "string" || body.clientId.length > 64)) {
+    return NextResponse.json({ error: "Payload inválido" }, { status: 400 });
+  }
+
   const userId = session.user.id;
 
   // Recalcula o número de acertos no servidor para não confiar no cliente
@@ -52,6 +59,7 @@ export async function POST(req: NextRequest) {
         correct: correctCount,
         total: 20,
         xpEarned,
+        clientId: body.clientId ?? null,
       },
     });
 
