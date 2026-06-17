@@ -8,9 +8,12 @@ import {
   formatActivityDate,
   notifyHistoryChanged,
   useHistory,
+  mergeHistories,
+  makeId,
   HISTORY_KEY,
   HISTORY_VERSION,
   type ActivityHistory,
+  type ActivityRecord,
 } from "@/lib/history";
 
 describe("parseHistory", () => {
@@ -126,5 +129,73 @@ describe("useHistory", () => {
 describe("chave de localStorage", () => {
   it("usa a chave documentada", () => {
     expect(HISTORY_KEY).toBe("continha-magica-history");
+  });
+});
+
+describe("makeId", () => {
+  it("gera ids não vazios e distintos", () => {
+    const a = makeId();
+    const b = makeId();
+    expect(a).toBeTruthy();
+    expect(a).not.toBe(b);
+  });
+});
+
+describe("addActivity com id explícito", () => {
+  it("usa o id fornecido quando passado", () => {
+    const base: ActivityHistory = { version: HISTORY_VERSION, activities: [] };
+    const updated = addActivity(base, 4, 18, 20, "2024-02-01T12:00:00.000Z", "fixo-1");
+    expect(updated.activities[0].id).toBe("fixo-1");
+  });
+
+  it("gera um id quando nenhum é passado", () => {
+    const base: ActivityHistory = { version: HISTORY_VERSION, activities: [] };
+    const updated = addActivity(base, 4, 18, 20, "2024-02-01T12:00:00.000Z");
+    expect(updated.activities[0].id).toBeTruthy();
+  });
+});
+
+describe("mergeHistories", () => {
+  const local: ActivityHistory = {
+    version: HISTORY_VERSION,
+    activities: [
+      { id: "a", grade: 4, score: 10, total: 20, completedAt: "2024-01-02T10:00:00.000Z" },
+      { id: "b", grade: 4, score: 12, total: 20, completedAt: "2024-01-01T10:00:00.000Z" },
+    ],
+  };
+
+  it("deduplica por id, preferindo o registro da nuvem", () => {
+    const cloud: ActivityRecord[] = [
+      { id: "a", grade: 4, score: 15, total: 20, completedAt: "2024-01-02T10:00:00.000Z" },
+    ];
+    const merged = mergeHistories(local, cloud);
+    const a = merged.activities.find((x) => x.id === "a");
+    expect(merged.activities).toHaveLength(2);
+    expect(a?.score).toBe(15);
+  });
+
+  it("inclui registros só da nuvem e ordena por data desc", () => {
+    const cloud: ActivityRecord[] = [
+      { id: "c", grade: 5, score: 20, total: 20, completedAt: "2024-01-03T10:00:00.000Z" },
+    ];
+    const merged = mergeHistories(local, cloud);
+    expect(merged.activities.map((x) => x.id)).toEqual(["c", "a", "b"]);
+  });
+
+  it("limita a 50 registros", () => {
+    const many: ActivityRecord[] = Array.from({ length: 60 }, (_, i) => ({
+      id: `cloud-${i}`,
+      grade: 4,
+      score: 10,
+      total: 20,
+      completedAt: new Date(2024, 0, 1, 0, i).toISOString(),
+    }));
+    const merged = mergeHistories({ version: HISTORY_VERSION, activities: [] }, many);
+    expect(merged.activities).toHaveLength(50);
+  });
+
+  it("nuvem vazia retorna o local", () => {
+    const merged = mergeHistories(local, []);
+    expect(merged.activities).toHaveLength(2);
   });
 });
