@@ -125,6 +125,12 @@ export const QuestionCard = memo(
             )}
           />
 
+          {question.category === "sequence" && isIdle && (
+            <p className="text-center text-xs font-medium text-slate-400 sm:text-sm">
+              Complete o número que falta na sequência.
+            </p>
+          )}
+
           {isIncorrect && (
             <div className="animate-pop-in rounded-xl bg-red-100 p-2 sm:p-3">
               <p className="text-sm font-bold text-red-700">

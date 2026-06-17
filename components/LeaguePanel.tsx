@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { signInWithGoogle } from "@/lib/auth-client";
 
 interface PlacarEntry {
   rank: number;
@@ -44,16 +45,6 @@ export function LeaguePanel() {
 
   const loading = status === "authenticated" && data === null;
 
-  // No app nativo o OAuth do Google é bloqueado dentro do WebView.
-  // Delega ao shell nativo, que abre o browser do sistema e devolve a sessão.
-  function handleLogin() {
-    if (typeof window !== "undefined" && window.__NATIVE_APP__) {
-      window.ReactNativeWebView?.postMessage(JSON.stringify({ type: "NATIVE_LOGIN" }));
-      return;
-    }
-    signIn("google");
-  }
-
   // Usuário não autenticado
   if (status === "unauthenticated") {
     return (
@@ -66,7 +57,7 @@ export function LeaguePanel() {
           ranking.
         </p>
         <button
-          onClick={handleLogin}
+          onClick={() => signInWithGoogle()}
           className="rounded-full bg-brand px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-brand/25 transition-colors hover:bg-brand-dark"
         >
           Entrar com Google

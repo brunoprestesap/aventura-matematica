@@ -5,8 +5,10 @@ import {
   useState,
   useRef,
   useCallback,
+  useEffect,
   useSyncExternalStore,
 } from "react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AnswerStatus } from "@/components/QuestionCard";
 import { QuestionCardItem } from "@/components/QuestionCardItem";
@@ -33,12 +35,14 @@ import {
   notifyUserNameChanged,
   useUserName,
 } from "@/lib/user";
+import { markCoachmarkSeen, useCoachmarkPending } from "@/lib/onboarding";
 import {
   RotateCcw,
   CheckCircle2,
   Sparkles,
   Trophy,
   GraduationCap,
+  Pencil,
   X,
 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -108,12 +112,24 @@ function useStoredGrade(): Grade | null {
 export function QuizPage() {
   const storedGrade = useStoredGrade();
   const userName = useUserName();
+  const { data: session } = useSession();
+  const coachmarkPending = useCoachmarkPending();
   const [isSelecting, setIsSelecting] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
   const [questionKey, setQuestionKey] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [leagueOpen, setLeagueOpen] = useState(false);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // Herda o nome da conta Google quando o usuário está autenticado e ainda não
+  // há um nome salvo localmente. Nunca sobrescreve um nome já informado.
+  useEffect(() => {
+    if (userName === null && session?.user?.name) {
+      writeUserName(session.user.name);
+      notifyUserNameChanged();
+    }
+  }, [userName, session]);
 
   const selectedGrade = isSelecting ? null : storedGrade;
 
@@ -127,6 +143,7 @@ export function QuizPage() {
   const handleSetName = useCallback((name: string) => {
     writeUserName(name);
     notifyUserNameChanged();
+    setIsEditingName(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
@@ -246,20 +263,34 @@ export function QuizPage() {
 
   const allAnswered = answeredCount === questions.length;
 
-  if (userName === null) {
+  if (userName === null || isEditingName) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
-        <NamePrompt onSubmit={handleSetName} />
+        <NamePrompt
+          onSubmit={handleSetName}
+          initialName={isEditingName ? userName ?? "" : ""}
+          stepLabel={isEditingName ? undefined : "Passo 1 de 2"}
+          onCancel={isEditingName ? () => setIsEditingName(false) : undefined}
+          showGoogle={!isEditingName}
+        />
       </div>
     );
   }
 
   if (selectedGrade === null) {
+    const isOnboarding = !isSelecting;
     return (
       <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
         <GradeSelector
           onSelect={handleSelectGrade}
           currentGrade={isSelecting ? storedGrade : null}
+          userName={userName}
+          stepLabel={isOnboarding ? "Passo 2 de 2" : undefined}
+          onBack={
+            isOnboarding
+              ? () => setIsEditingName(true)
+              : () => setIsSelecting(false)
+          }
         />
       </div>
     );
@@ -283,7 +314,7 @@ export function QuizPage() {
             Continha Mágica
           </div>
           <h1 className="mb-1 text-xl font-black tracking-tight text-slate-800 sm:mb-2 sm:text-3xl md:text-4xl lg:text-5xl">
-            Hora de praticar! 🚀
+            {userName ? `Hora de praticar, ${userName}! 🚀` : "Hora de praticar! 🚀"}
           </h1>
           <p className="mx-auto max-w-xl px-1 text-sm leading-snug text-slate-600 sm:text-base md:text-lg lg:text-xl">
             Resolva as 20 questões abaixo. Quando terminar, clique em{" "}
@@ -315,7 +346,20 @@ export function QuizPage() {
                   className="mr-1 size-3.5 sm:size-4"
                   aria-hidden="true"
                 />
-                Trocar
+                Trocar ano
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditingName(true)}
+                className="rounded-full border-brand-light px-3 text-xs text-brand-dark hover:bg-brand-light hover:text-brand-dark sm:px-4 sm:text-sm"
+              >
+                <Pencil
+                  className="mr-1 size-3.5 sm:size-4"
+                  aria-hidden="true"
+                />
+                Trocar nome
               </Button>
               <HistoryPanel />
               <Button
@@ -335,6 +379,37 @@ export function QuizPage() {
             </div>
           </div>
         </header>
+
+        {/* Dica de primeiro uso (coachmark) */}
+        {coachmarkPending && !submitted && (
+          <div
+            role="status"
+            className="animate-bounce-in mx-auto mb-4 flex max-w-2xl items-start gap-3 rounded-2xl bg-white p-3 text-left shadow-sm ring-2 ring-brand-light sm:mb-6 sm:p-4"
+          >
+            <span className="shrink-0 text-2xl" aria-hidden="true">
+              💡
+            </span>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-slate-700 sm:text-base">
+                Como funciona
+              </p>
+              <p className="text-xs text-slate-500 sm:text-sm">
+                Digite a resposta de cada questão e, ao terminar, toque em{" "}
+                <strong className="text-brand-dark">Verificar respostas</strong>.
+                O Pixel te avisa quando acertar!
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => markCoachmarkSeen()}
+              className="shrink-0 rounded-full text-xs font-bold text-brand-dark hover:bg-brand-light sm:text-sm"
+            >
+              Entendi!
+            </Button>
+          </div>
+        )}
 
         {/* Progresso */}
         {!submitted && (
@@ -433,8 +508,7 @@ export function QuizPage() {
                 onClick={focusFirstUnanswered}
                 className="h-auto min-h-10 w-full px-2 py-1 text-xs font-medium text-slate-500 hover:text-brand sm:w-auto sm:text-sm"
               >
-                Faltam {questions.length - answeredCount} questões — ir para a
-                próxima
+                Faltam {questions.length - answeredCount} — continuar
               </Button>
             )}
           </div>
