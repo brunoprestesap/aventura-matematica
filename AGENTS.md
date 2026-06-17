@@ -498,8 +498,9 @@ A aplicação armazena dados no `localStorage` do navegador com as seguintes cha
 | `continha-magica-history` | Histórico de atividades | `lib/history.ts` |
 | `continha-magica-user-name` | Nome do usuário | `lib/user.ts` |
 | `continha-magica-migrated-v1` | Controle de migração do rebrand | `lib/migrate.ts` |
+| `continha-magica-onboarding-v1` | Flag "coachmark de primeiro uso visto" | `lib/onboarding.ts` |
 
-Os hooks `useStoredGrade`, `useHistory` e `useUserName` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
+Os hooks `useStoredGrade`, `useHistory`, `useUserName` e `useCoachmarkPending` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
 
 ### App nativo
 

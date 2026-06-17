@@ -11,12 +11,12 @@ test.describe("Fluxo do quiz", () => {
     await page.getByLabel(/Seu nome/i).fill("Ana Teste");
     await page.getByRole("button", { name: /Começar a magia/i }).click();
 
-    // Tela de seleção de ano
-    await expect(page.getByText(/Em qual ano você está\?/i)).toBeVisible();
+    // Tela de seleção de ano (saudação personalizada com o nome)
+    await expect(page.getByText(/Em qual ano você está/i)).toBeVisible();
     await page.getByRole("button", { name: /4º ano/i }).click();
 
     // Quiz carregou
-    await expect(page.getByText(/Hora de praticar!/i)).toBeVisible();
+    await expect(page.getByText(/Hora de praticar/i)).toBeVisible();
     await expect(page.getByText(/4º ano/i)).toBeVisible();
 
     // Preenche as 20 respostas com "1" (provavelmente errado, mas preenche)
@@ -47,6 +47,6 @@ test.describe("Fluxo do quiz", () => {
 
     // Novas questões
     await page.getByRole("button", { name: /Novas questões/i }).click();
-    await expect(page.getByText(/Hora de praticar!/i)).toBeVisible();
+    await expect(page.getByText(/Hora de praticar/i)).toBeVisible();
   });
 });
