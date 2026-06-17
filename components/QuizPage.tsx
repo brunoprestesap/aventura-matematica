@@ -26,6 +26,7 @@ import {
   writeHistory,
   addActivity,
   notifyHistoryChanged,
+  makeId,
 } from "@/lib/history";
 import {
   writeUserName,
@@ -207,6 +208,8 @@ export function QuizPage() {
     setSubmitted(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
 
+    const clientId = makeId();
+
     const history = readHistory();
     writeHistory(
       addActivity(
@@ -214,7 +217,8 @@ export function QuizPage() {
         selectedGrade,
         score,
         questions.length,
-        new Date().toISOString()
+        new Date().toISOString(),
+        clientId
       )
     );
     notifyHistoryChanged();
@@ -232,6 +236,7 @@ export function QuizPage() {
           grade: selectedGrade,
           correct: score,
           answers: answersArray,
+          clientId,
         }),
       }).catch(() => {
         // Falha silenciosa — a liga não deve bloquear o fluxo do quiz

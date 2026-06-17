@@ -176,4 +176,41 @@ describe("POST /api/session", () => {
     const member = await prisma.leagueMember.findFirstOrThrow({ where: { userId: user.id } });
     expect(member.groupId).toBe(group.id);
   });
+
+  it("persiste o clientId no WeeklyScore quando enviado", async () => {
+    const user = await createUser({ email: "client@example.com" });
+    mockedAuth.mockResolvedValue({ user: { id: user.id } } as never);
+
+    const req = createNextRequest({
+      method: "POST",
+      body: {
+        grade: 4,
+        correct: 10,
+        answers: new Array(20).fill(false).map((_, i) => i < 10),
+        clientId: "abc123",
+      },
+    });
+
+    const res = await POST(req);
+    const json = await res.json();
+    expect(json.authenticated).toBe(true);
+
+    const score = await prisma.weeklyScore.findFirstOrThrow({ where: { userId: user.id } });
+    expect(score.clientId).toBe("abc123");
+  });
+
+  it("aceita payload sem clientId (compatibilidade)", async () => {
+    const user = await createUser({ email: "noclient@example.com" });
+    mockedAuth.mockResolvedValue({ user: { id: user.id } } as never);
+
+    const req = createNextRequest({
+      method: "POST",
+      body: { grade: 4, correct: 10, answers: new Array(20).fill(false).map((_, i) => i < 10) },
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const score = await prisma.weeklyScore.findFirstOrThrow({ where: { userId: user.id } });
+    expect(score.clientId).toBeNull();
+  });
 });

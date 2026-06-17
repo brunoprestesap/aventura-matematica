@@ -1,14 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useHistory, formatActivityDate } from "@/lib/history";
+import {
+  useHistory,
+  mergeHistories,
+  formatActivityDate,
+  type ActivityRecord,
+} from "@/lib/history";
 import { getGradeConfig } from "@/lib/questions";
 import { History, X, Trophy, Calendar } from "lucide-react";
 
 export function HistoryPanel() {
   const [open, setOpen] = useState(false);
-  const history = useHistory();
+  const [cloud, setCloud] = useState<ActivityRecord[]>([]);
+  const localHistory = useHistory();
+
+  // Busca lazy: só quando o painel abre.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch("/api/historico")
+      .then((res) => (res.ok ? res.json() : { activities: [] }))
+      .then((data) => {
+        if (!cancelled && Array.isArray(data.activities)) {
+          setCloud(data.activities as ActivityRecord[]);
+        }
+      })
+      .catch(() => {
+        // Falha silenciosa — cai para o histórico local
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  const history = mergeHistories(localHistory, cloud);
 
   return (
     <>

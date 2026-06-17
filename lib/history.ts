@@ -19,7 +19,7 @@ export interface ActivityHistory {
   activities: ActivityRecord[];
 }
 
-function makeId(): string {
+export function makeId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
@@ -80,10 +80,11 @@ export function addActivity(
   grade: Grade,
   score: number,
   total: number,
-  completedAt: string
+  completedAt: string,
+  id: string = makeId()
 ): ActivityHistory {
   const activity: ActivityRecord = {
-    id: makeId(),
+    id,
     grade,
     score,
     total,
@@ -93,6 +94,22 @@ export function addActivity(
     version: HISTORY_VERSION,
     activities: [activity, ...history.activities].slice(0, 50),
   };
+}
+
+// Mescla histórico local com registros vindos da nuvem.
+// Dedup por id (o cliente reusa o id local como clientId no servidor),
+// preferindo o registro da nuvem em caso de colisão. Ordena por data desc.
+export function mergeHistories(
+  local: ActivityHistory,
+  cloud: ActivityRecord[]
+): ActivityHistory {
+  const byId = new Map<string, ActivityRecord>();
+  for (const record of local.activities) byId.set(record.id, record);
+  for (const record of cloud) byId.set(record.id, record); // nuvem sobrescreve
+  const activities = Array.from(byId.values())
+    .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+    .slice(0, 50);
+  return { version: HISTORY_VERSION, activities };
 }
 
 function subscribeToHistory(callback: () => void) {

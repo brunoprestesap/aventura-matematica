@@ -141,6 +141,7 @@ model WeeklyScore {
   correct     Int      // acertos (0–20)
   total       Int      // total de questões (sempre 20)
   xpEarned    Int      // XP calculado pelo servidor
+  clientId    String?  // id estável gerado no cliente (makeId), p/ dedup do histórico
   sessionDate DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
