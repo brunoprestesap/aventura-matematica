@@ -57,8 +57,10 @@ export const QuestionCard = memo(
           <Pixel pose={pixelPose} size={56} animated={pixelPose === "correct" || pixelPose === "thinking"} />
         </div>
 
-        {/* Cabeçalho: badge + número + status */}
-        <div className="flex items-start justify-between gap-2">
+        {/* Cabeçalho: badge + número + status.
+            pr reserva espaço para o mascote ancorado no canto superior direito,
+            evitando que o "#índice" fique escondido atrás do Pixel. */}
+        <div className="flex items-start justify-between gap-2 pr-11 sm:pr-12">
           <Badge
             className={cn(
               "shrink-0 rounded-full border-transparent px-2 py-0.5 text-[10px] font-bold sm:px-2.5 sm:py-1 sm:text-xs",
