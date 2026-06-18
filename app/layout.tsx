@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
+import { Analytics } from "@vercel/analytics/next";
 import { auth } from "@/auth";
 import "./globals.css";
 
@@ -61,6 +62,7 @@ export default async function RootLayout({
         <SessionProvider session={session} refetchOnWindowFocus={false}>
           {children}
         </SessionProvider>
+        <Analytics />
         {process.env.NODE_ENV === "production" ? (
           <Script id="register-sw" strategy="afterInteractive">
             {`
