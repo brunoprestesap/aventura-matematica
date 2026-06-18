@@ -1,3 +1,12 @@
+import type { MasteryMap } from "./mastery";
+import {
+  MIN_PER_CATEGORY,
+  MAX_PER_CATEGORY,
+  NEUTRAL_SCORE,
+  NOISE_MIN,
+  NOISE_MAX,
+} from "./mastery";
+
 export type QuestionCategory =
   | "addition"
   | "subtraction"
@@ -380,24 +389,103 @@ const CATEGORIES: QuestionCategory[] = [
   "word",
 ];
 
-export function generateQuestions(count = 20, grade: Grade = 4): Question[] {
-  const generators = makeGenerators(grade);
-  const questions: Question[] = [];
+// Distribui `count` questões entre as categorias, dando mais peso àquelas em
+// que o aluno tem menor maestria. Usa largest-remainder (Hamilton) com piso
+// (MIN_PER_CATEGORY) e teto (MAX_PER_CATEGORY); a soma é sempre exatamente
+// `count`. Só a proporção entre categorias muda — os geradores são os mesmos.
+function allocateCounts(
+  mastery: MasteryMap,
+  count: number
+): Record<QuestionCategory, number> {
+  const n = CATEGORIES.length; // 6
+  const capExtra = MAX_PER_CATEGORY - MIN_PER_CATEGORY; // 7
+  const remaining = count - MIN_PER_CATEGORY * n; // extras a distribuir (14)
 
-  // Garante distribuição equilibrada: pelo menos floor(count/categories)
-  const basePerCategory = Math.floor(count / CATEGORIES.length);
+  // 1. Pesos: categorias fracas pesam mais; ruído evita padrões previsíveis.
+  const noise = () => NOISE_MIN + Math.random() * (NOISE_MAX - NOISE_MIN);
+  const rawWeights = CATEGORIES.map(
+    (c) => (1 - (mastery[c] ?? NEUTRAL_SCORE)) * noise()
+  );
+
+  // 2. Guarda soma-zero (todas as maestrias = 1 → pesos 0): pesos iguais.
+  const totalRaw = rawWeights.reduce((a, b) => a + b, 0);
+  const weights = totalRaw > 0 ? rawWeights : CATEGORIES.map(() => 1);
+  const totalWeight = totalRaw > 0 ? totalRaw : n;
+
+  // 3. Cota ideal de EXTRAS (acima do piso); a soma das cotas é `remaining`.
+  const ideal = weights.map((w) => (w / totalWeight) * remaining);
+
+  // 4. Piso (implícito) + teto: floor da cota, limitado ao teto de extras.
+  const extra = ideal.map((x) => Math.min(Math.floor(x), capExtra));
+  const usedExtra = extra.reduce((a, b) => a + b, 0);
+  // Capacidade total de extras = n * capExtra (= 42 para count=20). Se `count`
+  // exceder o que cabe nas categorias (n * MAX_PER_CATEGORY = 48), limitamos o
+  // déficit à capacidade restante para o laço sempre terminar — em vez de
+  // travar a aba. Nos usos reais (count=20) este clamp nunca atua.
+  const spareCapacity = n * capExtra - usedExtra;
+  let deficit = Math.min(remaining - usedExtra, spareCapacity); // ≥ 0
+
+  // 5. Distribui o déficit por maior resto; pula categorias no teto e dá voltas
+  //    (k % n) para absorver overflow de teto. Termina pois deficit ≤ capacidade.
+  const order = ideal
+    .map((x, i) => ({ i, rem: x - Math.floor(x) }))
+    .sort((a, b) => b.rem - a.rem || weights[b.i] - weights[a.i] || a.i - b.i)
+    .map((o) => o.i);
+  let k = 0;
+  while (deficit > 0) {
+    const idx = order[k % n];
+    if (extra[idx] < capExtra) {
+      extra[idx] += 1;
+      deficit -= 1;
+    }
+    k += 1;
+  }
+
+  // 6. Soma o piso. Total garantido === count.
+  const counts = {} as Record<QuestionCategory, number>;
+  CATEGORIES.forEach((c, i) => {
+    counts[c] = MIN_PER_CATEGORY + extra[i];
+  });
+  return counts;
+}
+
+export function generateQuestions(
+  count = 20,
+  grade: Grade = 4,
+  { mastery }: { mastery?: MasteryMap } = {}
+): Question[] {
+  const generators = makeGenerators(grade);
+
+  if (!mastery) {
+    const questions: Question[] = [];
+
+    // Garante distribuição equilibrada: pelo menos floor(count/categories)
+    const basePerCategory = Math.floor(count / CATEGORIES.length);
+    for (const category of CATEGORIES) {
+      for (let i = 0; i < basePerCategory; i++) {
+        questions.push(generators[category]());
+      }
+    }
+
+    // Completa o restante aleatoriamente
+    while (questions.length < count) {
+      const category = CATEGORIES[rand(0, CATEGORIES.length - 1)];
+      questions.push(generators[category]());
+    }
+
+    // Embaralha
+    return questions.sort(() => Math.random() - 0.5);
+  }
+
+  // Caminho adaptativo: proporção ponderada pela maestria.
+  const counts = allocateCounts(mastery, count);
+  const questions: Question[] = [];
   for (const category of CATEGORIES) {
-    for (let i = 0; i < basePerCategory; i++) {
+    for (let i = 0; i < counts[category]; i++) {
       questions.push(generators[category]());
     }
   }
 
-  // Completa o restante aleatoriamente
-  while (questions.length < count) {
-    const category = CATEGORIES[rand(0, CATEGORIES.length - 1)];
-    questions.push(generators[category]());
-  }
-
-  // Embaralha
+  // Embaralha (mesma ordem aleatória do caminho uniforme)
   return questions.sort(() => Math.random() - 0.5);
 }

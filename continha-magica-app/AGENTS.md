@@ -58,6 +58,7 @@ As chaves sincronizadas entre SecureStore e localStorage do PWA são:
 - `continha-magica-grade`
 - `continha-magica-history`
 - `continha-magica-user-name`
+- `continha-magica-mastery-v1`
 
 Essa sincronia é necessária principalmente no iOS, onde o WKWebView pode limpar o localStorage entre sessões de app.
 

@@ -15,6 +15,7 @@ const SYNC_KEYS = [
   "continha-magica-grade",
   "continha-magica-history",
   "continha-magica-user-name",
+  "continha-magica-mastery-v1",
 ] as const;
 
 type SyncKey = (typeof SYNC_KEYS)[number];

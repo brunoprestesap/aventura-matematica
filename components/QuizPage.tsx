@@ -16,6 +16,7 @@ import { Celebration } from "@/components/Celebration";
 import {
   generateQuestions,
   Question,
+  QuestionCategory,
   Grade,
   getGradeConfig,
 } from "@/lib/questions";
@@ -36,6 +37,13 @@ import {
   useUserName,
 } from "@/lib/user";
 import { markCoachmarkSeen, useCoachmarkPending } from "@/lib/onboarding";
+import {
+  getMastery,
+  updateMastery,
+  writeMastery,
+  notifyMasteryChanged,
+  CategoryResult,
+} from "@/lib/mastery";
 import {
   RotateCcw,
   CheckCircle2,
@@ -135,7 +143,11 @@ export function QuizPage() {
 
   const questions = useMemo<Question[]>(() => {
     if (selectedGrade === null) return [];
-    return generateQuestions(20, selectedGrade);
+    // getMastery() é lido imperativamente de propósito: a maestria é gravada
+    // ao verificar respostas; se fosse dependência, verificar regeneraria as
+    // questões sob as respostas já enviadas. Uma nova sessão (questionKey) ou
+    // troca de ano relê a maestria mais recente.
+    return generateQuestions(20, selectedGrade, { mastery: getMastery() });
     // questionKey é usado apenas para forçar a regeneração das questões
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGrade, questionKey]);
@@ -239,6 +251,30 @@ export function QuizPage() {
       )
     );
     notifyHistoryChanged();
+
+    // Atualiza a maestria por categoria (mesma regra de correção do
+    // answersArray: vazio ⇒ incorreto). Persistido localmente; a próxima
+    // sessão usa esses valores para o sorteio adaptativo.
+    const tally = {} as Record<
+      QuestionCategory,
+      { correct: number; total: number }
+    >;
+    for (const q of questions) {
+      const bucket =
+        tally[q.category] ?? (tally[q.category] = { correct: 0, total: 0 });
+      bucket.total += 1;
+      const value = answers[q.id]?.trim();
+      if (value && Number(value) === q.answer) bucket.correct += 1;
+    }
+    const results: CategoryResult[] = (
+      Object.keys(tally) as QuestionCategory[]
+    ).map((c) => ({
+      category: c,
+      correct: tally[c].correct,
+      total: tally[c].total,
+    }));
+    writeMastery(updateMastery(getMastery(), results));
+    notifyMasteryChanged();
 
     // Envia resultado para a liga em background (não bloqueia a UI)
     const answersArray = questions.map(
