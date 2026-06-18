@@ -2,8 +2,14 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
 import { config } from "dotenv";
+import { MotionGlobalConfig } from "motion/react";
 
 config({ path: ".env.test" });
+
+// Faz as animações do Framer Motion (`motion`) resolverem instantaneamente no
+// ambiente de teste — os componentes `m.*` saltam direto para o estado final,
+// tornando as asserções de visibilidade/desmontagem determinísticas.
+MotionGlobalConfig.skipAnimations = true;
 
 // Limpa o DOM após cada teste de componente
 afterEach(() => {

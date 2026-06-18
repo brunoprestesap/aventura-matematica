@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { m } from "motion/react";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { staggerContainer, listItem } from "@/lib/motion";
 import { signInWithGoogle } from "@/lib/auth-client";
 
 interface PlacarEntry {
@@ -133,12 +135,18 @@ export function LeaguePanel() {
       </div>
 
       {/* Placar */}
-      <ul className="flex flex-col gap-1.5">
+      <m.ul
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="flex flex-col gap-1.5"
+      >
         {data.placar?.map((entry) => {
           const medal = MEDALS[entry.rank];
           return (
-            <li
+            <m.li
               key={entry.userId}
+              variants={listItem}
               className={cn(
                 "relative flex items-center gap-3 overflow-hidden rounded-2xl px-3 py-2.5 text-sm transition-colors",
                 // Linha do usuário atual — destaque "holofote" em teal, sempre legível
@@ -211,10 +219,10 @@ export function LeaguePanel() {
               >
                 {entry.xpWeekly} XP
               </span>
-            </li>
+            </m.li>
           );
         })}
-      </ul>
+      </m.ul>
     </div>
   );
 }

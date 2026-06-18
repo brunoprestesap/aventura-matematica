@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 import { signIn, signOut } from "next-auth/react";
 import { LeaguePanel } from "@/components/LeaguePanel";

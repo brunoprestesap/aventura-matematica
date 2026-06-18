@@ -1,7 +1,9 @@
 "use client";
 
+import { m } from "motion/react";
 import { Grade, GRADES, getGradeConfig } from "@/lib/questions";
 import { cn } from "@/lib/utils";
+import { staggerContainer, fadeItem } from "@/lib/motion";
 import { BookOpen, GraduationCap, ArrowLeft } from "lucide-react";
 import { Pixel } from "@/components/Pixel";
 import { Button } from "@/components/ui/button";
@@ -49,15 +51,21 @@ export function GradeSelector({
         dificuldade ideal para você.
       </p>
 
-      <div className="grid w-full grid-cols-2 gap-3 px-1 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:gap-6">
+      <m.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="grid w-full grid-cols-2 gap-3 px-1 sm:grid-cols-3 sm:gap-5 md:grid-cols-4 lg:gap-6"
+      >
         {GRADES.map((grade) => {
           const cfg = getGradeConfig(grade);
           const isSelected = currentGrade === grade;
 
           return (
-            <button
+            <m.button
               key={grade}
               type="button"
+              variants={fadeItem}
               aria-pressed={isSelected}
               onClick={() => onSelect(grade)}
               className={cn(
@@ -91,10 +99,10 @@ export function GradeSelector({
                   ✓
                 </span>
               )}
-            </button>
+            </m.button>
           );
         })}
-      </div>
+      </m.div>
 
       <div className="mt-6 flex items-center gap-2 rounded-xl bg-white/60 px-4 py-3 text-sm text-slate-600 shadow-sm backdrop-blur-sm sm:mt-8 sm:text-base">
         <BookOpen className="size-5 shrink-0 text-brand" aria-hidden="true" />

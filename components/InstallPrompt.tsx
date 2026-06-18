@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { overlayFade, modalSpring } from "@/lib/motion";
 import {
   Smartphone,
   X,
@@ -132,7 +134,6 @@ function IOSIllustration() {
 
 export function InstallPrompt() {
   const [open, setOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const platform = useMemo(() => detectPlatform(), []);
   const [selectedOS, setSelectedOS] = useState<OS>(() =>
     platform.os === "ios" ? "ios" : "android"
@@ -155,16 +156,14 @@ export function InstallPrompt() {
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
-    const timer = setTimeout(() => setIsVisible(true), 10);
     return () => {
-      clearTimeout(timer);
       document.body.style.overflow = "";
     };
   }, [open]);
 
+  // AnimatePresence cuida da animação de saída; basta fechar o estado.
   const handleClose = useCallback(() => {
-    setIsVisible(false);
-    window.setTimeout(() => setOpen(false), 250);
+    setOpen(false);
   }, []);
 
   const handleNativeInstall = useCallback(async () => {
@@ -247,11 +246,14 @@ export function InstallPrompt() {
         <span className="sm:hidden">Instalar</span>
       </Button>
 
-      {open && (
-        <div
-          className={`fixed inset-0 z-50 flex items-end justify-center p-0 transition-colors duration-300 sm:items-center sm:p-4 ${
-            isVisible ? "bg-slate-900/50 backdrop-blur-sm" : "bg-transparent"
-          }`}
+      <AnimatePresence>
+        {open && (
+        <m.div
+          variants={overlayFade}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
@@ -259,10 +261,12 @@ export function InstallPrompt() {
           aria-modal="true"
           aria-labelledby="install-title"
         >
-          <div
-            className={`relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl transition-all duration-300 ease-out sm:max-h-[85vh] sm:rounded-[2rem] ${
-              isVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"
-            }`}
+          <m.div
+            variants={modalSpring}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-[2rem]"
           >
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
@@ -406,9 +410,10 @@ export function InstallPrompt() {
                 </Button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </m.div>
+        </m.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
