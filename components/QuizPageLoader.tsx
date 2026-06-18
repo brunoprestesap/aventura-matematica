@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { MotionProvider } from "@/components/MotionProvider";
 
 const QuizPage = dynamic(
   () => import("@/components/QuizPage").then((mod) => mod.QuizPage),
@@ -8,5 +9,9 @@ const QuizPage = dynamic(
 );
 
 export function QuizPageLoader() {
-  return <QuizPage />;
+  return (
+    <MotionProvider>
+      <QuizPage />
+    </MotionProvider>
+  );
 }

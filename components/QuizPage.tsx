@@ -7,7 +7,9 @@ import {
   useCallback,
   useEffect,
   useSyncExternalStore,
+  type ReactNode,
 } from "react";
+import { m, AnimatePresence } from "motion/react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AnswerStatus } from "@/components/QuestionCard";
@@ -37,6 +39,14 @@ import {
   useUserName,
 } from "@/lib/user";
 import { markCoachmarkSeen, useCoachmarkPending } from "@/lib/onboarding";
+import {
+  screenTransition,
+  staggerContainer,
+  listItem,
+  popIn,
+  overlayFade,
+  modalSpring,
+} from "@/lib/motion";
 import {
   getMastery,
   updateMastery,
@@ -299,8 +309,14 @@ export function QuizPage() {
 
   const allAnswered = answeredCount === questions.length;
 
+  // Conteúdo da tela atual + chave estável para coordenar a transição entre
+  // telas (nome → ano → quiz) via AnimatePresence mode="wait".
+  let screenKey: string;
+  let screenContent: ReactNode;
+
   if (userName === null || isEditingName) {
-    return (
+    screenKey = "name";
+    screenContent = (
       <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
         <NamePrompt
           onSubmit={handleSetName}
@@ -311,11 +327,10 @@ export function QuizPage() {
         />
       </div>
     );
-  }
-
-  if (selectedGrade === null) {
+  } else if (selectedGrade === null) {
     const isOnboarding = !isSelecting;
-    return (
+    screenKey = "grade";
+    screenContent = (
       <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8 lg:py-10">
         <GradeSelector
           onSelect={handleSelectGrade}
@@ -330,11 +345,10 @@ export function QuizPage() {
         />
       </div>
     );
-  }
-
-  const gradeConfig = getGradeConfig(selectedGrade);
-
-  return (
+  } else {
+    const gradeConfig = getGradeConfig(selectedGrade);
+    screenKey = "quiz";
+    screenContent = (
     <div className="min-h-screen bg-gradient-to-br from-bg-light via-brand-light/30 to-pink-100 px-3 pb-[calc(11rem_+_env(safe-area-inset-bottom))] pt-4 sm:px-4 sm:pb-28 sm:pt-6 md:px-6 md:pb-32 md:pt-8 lg:pt-10">
       <Celebration
         score={score}
@@ -417,10 +431,15 @@ export function QuizPage() {
         </header>
 
         {/* Dica de primeiro uso (coachmark) */}
-        {coachmarkPending && !submitted && (
-          <div
+        <AnimatePresence>
+          {coachmarkPending && !submitted && (
+          <m.div
+            variants={popIn}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             role="status"
-            className="animate-bounce-in mx-auto mb-4 flex max-w-2xl items-start gap-3 rounded-2xl bg-white p-3 text-left shadow-sm ring-2 ring-brand-light sm:mb-6 sm:p-4"
+            className="mx-auto mb-4 flex max-w-2xl items-start gap-3 rounded-2xl bg-white p-3 text-left shadow-sm ring-2 ring-brand-light sm:mb-6 sm:p-4"
           >
             <span className="shrink-0 text-2xl" aria-hidden="true">
               💡
@@ -444,8 +463,9 @@ export function QuizPage() {
             >
               Entendi!
             </Button>
-          </div>
-        )}
+          </m.div>
+          )}
+        </AnimatePresence>
 
         {/* Progresso */}
         {!submitted && (
@@ -470,7 +490,12 @@ export function QuizPage() {
 
         {/* Resultado */}
         {submitted && (
-          <div className="animate-bounce-in mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-brand-light sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8">
+          <m.div
+            variants={popIn}
+            initial="initial"
+            animate="animate"
+            className="mx-auto mb-4 max-w-3xl rounded-2xl bg-white p-4 text-center shadow-lg ring-2 ring-brand-light sm:mb-6 sm:p-5 md:mb-8 md:rounded-3xl md:p-6 lg:p-8"
+          >
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-brand-light px-3 py-1 text-xs font-bold text-brand-dark sm:text-sm">
               <Trophy className="size-4 sm:size-5" aria-hidden="true" />
               Resultado
@@ -487,24 +512,31 @@ export function QuizPage() {
                     ? "Bom trabalho! Continue praticando!"
                     : "Não desista! Tente novamente!"}
             </p>
-          </div>
+          </m.div>
         )}
 
-        {/* Grid de questões */}
-        <div className="grid grid-cols-1 gap-x-3 gap-y-8 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-5 lg:gap-y-12">
+        {/* Grid de questões — entrada escalonada (stagger) a cada nova rodada */}
+        <m.div
+          key={questionKey}
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-1 gap-x-3 gap-y-8 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-5 lg:gap-y-12"
+        >
           {questions.map((question, index) => (
-            <QuestionCardItem
-              key={question.id}
-              question={question}
-              index={index}
-              value={answers[question.id] ?? ""}
-              status={statuses[question.id] ?? "idle"}
-              disabled={submitted}
-              onChange={handleAnswerChange}
-              setInputRef={handleSetInputRef}
-            />
+            <m.div key={question.id} variants={listItem} className="h-full">
+              <QuestionCardItem
+                question={question}
+                index={index}
+                value={answers[question.id] ?? ""}
+                status={statuses[question.id] ?? "idle"}
+                disabled={submitted}
+                onChange={handleAnswerChange}
+                setInputRef={handleSetInputRef}
+              />
+            </m.div>
           ))}
-        </div>
+        </m.div>
 
         {/* Barra de ações sticky */}
         <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/40 bg-white/70 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(13,148,136,0.15)] backdrop-blur-xl sm:bottom-4 sm:left-1/2 sm:right-auto sm:w-[calc(100%-2rem)] sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border sm:border-slate-200/60 sm:p-4 md:bottom-6">
@@ -551,16 +583,25 @@ export function QuizPage() {
         </div>
 
         {/* Modal da Liga */}
-        {leagueOpen && (
-          <div
+        <AnimatePresence>
+          {leagueOpen && (
+          <m.div
+            variants={overlayFade}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
             onClick={() => setLeagueOpen(false)}
             role="dialog"
             aria-modal="true"
             aria-label="Liga semanal"
           >
-            <div
-              className="animate-slide-up max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
+            <m.div
+              variants={modalSpring}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
@@ -584,10 +625,26 @@ export function QuizPage() {
               <div className="overflow-y-auto p-3 sm:p-4">
                 <LeaguePanel />
               </div>
-            </div>
-          </div>
-        )}
+            </m.div>
+          </m.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
+    );
+  }
+
+  return (
+    <AnimatePresence mode="wait">
+      <m.div
+        key={screenKey}
+        variants={screenTransition}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+      >
+        {screenContent}
+      </m.div>
+    </AnimatePresence>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
 import { forwardRef, memo } from "react";
+import { m } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryConfig, Question } from "@/lib/questions";
 import { cn } from "@/lib/utils";
+import { cardFeedback } from "@/lib/motion";
 import { Pixel } from "@/components/Pixel";
 import type { PixelPose } from "@/components/Pixel";
 
@@ -38,7 +40,10 @@ export const QuestionCard = memo(
           : "idle";
 
     return (
-      <article
+      <m.article
+        initial={false}
+        animate={status}
+        variants={cardFeedback}
         className={cn(
           "relative flex min-h-full flex-col gap-3 rounded-[1.5rem] border-[3px] bg-white p-4 shadow-md transition-all duration-200 sm:gap-4 sm:rounded-[2rem] sm:border-4 sm:p-5",
           config.border,
@@ -52,8 +57,10 @@ export const QuestionCard = memo(
           <Pixel pose={pixelPose} size={56} animated={pixelPose === "correct" || pixelPose === "thinking"} />
         </div>
 
-        {/* Cabeçalho: badge + número + status */}
-        <div className="flex items-start justify-between gap-2">
+        {/* Cabeçalho: badge + número + status.
+            pr reserva espaço para o mascote ancorado no canto superior direito,
+            evitando que o "#índice" fique escondido atrás do Pixel. */}
+        <div className="flex items-start justify-between gap-2 pr-11 sm:pr-12">
           <Badge
             className={cn(
               "shrink-0 rounded-full border-transparent px-2 py-0.5 text-[10px] font-bold sm:px-2.5 sm:py-1 sm:text-xs",
@@ -147,7 +154,7 @@ export const QuestionCard = memo(
             </div>
           )}
         </div>
-      </article>
+      </m.article>
     );
   })
 );

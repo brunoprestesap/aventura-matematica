@@ -80,6 +80,7 @@ e nos feedbacks inline do `QuizPage.tsx`.
 | @base-ui/react | Base dos componentes de UI em `components/ui/` |
 | Lucide React | Ícones |
 | canvas-confetti | Animação de celebração |
+| motion (Framer Motion) | Animações de UI via `LazyMotion` + `domAnimation` (componentes `m.*`; ver `components/MotionProvider.tsx` e `lib/motion.ts`) |
 | ESLint | 9 + `eslint-config-next` |
 | NextAuth v5 (beta) | Auth com Google OAuth |
 | Prisma + @prisma/client | ORM para PostgreSQL |
@@ -461,7 +462,8 @@ A cobertura é configurada em `vitest.config.ts`.
 - **Tailwind**: as classes são mescladas com a função `cn` (`lib/utils.ts`).
 - **shadcn/ui**: os componentes em `components/ui/` seguem o padrão base-nova e usam `@base-ui/react`.
 - **Responsividade**: os componentes usam breakpoints `sm:`, `md:`, `lg:` e valores adaptados a telas pequenas (público infantil).
-- **Acessibilidade**: inputs possuem `aria-label`, modais usam `role="dialog"` e `aria-modal="true"`, e animações respeitam `prefers-reduced-motion`.
+- **Acessibilidade**: inputs possuem `aria-label`, modais usam `role="dialog"` e `aria-modal="true"`, e animações respeitam `prefers-reduced-motion` (no CSS e via `<MotionConfig reducedMotion="user">` em `components/MotionProvider.tsx`).
+- **Animações (Framer Motion)**: use sempre componentes `m.*` (nunca `motion.*` — o `LazyMotion strict` quebra o build de propósito) e reutilize os presets de `lib/motion.ts`. O provider fica em `components/QuizPageLoader.tsx`. Em testes de componentes, renderize via `tests/components/test-utils.tsx` (envolve em `LazyMotion`); animações são instantâneas por `MotionGlobalConfig.skipAnimations` no `vitest.setup.ts`.
 - **Comentários**: prefira comentários em português, conforme o restante do código.
 
 ### Imports

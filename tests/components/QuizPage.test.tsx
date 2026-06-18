@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 import { QuizPage } from "@/components/QuizPage";
 import { USER_NAME_KEY } from "@/lib/user";

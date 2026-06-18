@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import {
   useHistory,
@@ -9,6 +10,7 @@ import {
   type ActivityRecord,
 } from "@/lib/history";
 import { getGradeConfig } from "@/lib/questions";
+import { staggerContainer, listItem, overlayFade, modalSpring } from "@/lib/motion";
 import { History, X, Trophy, Calendar } from "lucide-react";
 
 export function HistoryPanel() {
@@ -50,16 +52,25 @@ export function HistoryPanel() {
         Histórico
       </Button>
 
-      {open && (
-        <div
+      <AnimatePresence>
+        {open && (
+        <m.div
+          variants={overlayFade}
+          initial="initial"
+          animate="animate"
+          exit="exit"
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
           onClick={() => setOpen(false)}
           role="dialog"
           aria-modal="true"
           aria-label="Histórico de atividades"
         >
-          <div
-            className="animate-slide-up max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
+          <m.div
+            variants={modalSpring}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
@@ -96,12 +107,18 @@ export function HistoryPanel() {
                   </p>
                 </div>
               ) : (
-                <ul className="space-y-2 sm:space-y-3">
+                <m.ul
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                  className="space-y-2 sm:space-y-3"
+                >
                   {history.activities.map((activity) => {
                     const gradeConfig = getGradeConfig(activity.grade);
                     return (
-                      <li
+                      <m.li
                         key={activity.id}
+                        variants={listItem}
                         className="rounded-xl border border-slate-100 bg-slate-50 p-3 transition-colors hover:bg-brand-light sm:rounded-2xl sm:p-4"
                       >
                         <div className="mb-1 flex items-center justify-between sm:mb-2">
@@ -126,15 +143,16 @@ export function HistoryPanel() {
                           />
                           {formatActivityDate(activity.completedAt)}
                         </div>
-                      </li>
+                      </m.li>
                     );
                   })}
-                </ul>
+                </m.ul>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          </m.div>
+        </m.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { HISTORY_KEY, HISTORY_VERSION } from "@/lib/history";
@@ -47,7 +47,10 @@ describe("HistoryPanel", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: /Fechar/i }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // AnimatePresence desmonta após o ciclo de saída — aguardar a remoção.
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
   });
 
   it("mantém o modal aberto ao clicar no conteúdo interno", async () => {
@@ -67,7 +70,10 @@ describe("HistoryPanel", () => {
 
     // Clique direto no overlay (elemento dialog) dispara o fechamento
     fireEvent.click(screen.getByRole("dialog"));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // AnimatePresence desmonta após o ciclo de saída — aguardar a remoção.
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
   });
 });
 

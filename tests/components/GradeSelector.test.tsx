@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "./test-utils";
 import userEvent from "@testing-library/user-event";
 import { GradeSelector } from "@/components/GradeSelector";
 
@@ -26,11 +26,12 @@ describe("GradeSelector", () => {
     expect(button3).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("exibe a descrição de dificuldade de cada ano (visível no mobile)", () => {
+  it("exibe a descrição de dificuldade de cada ano (visível no mobile)", async () => {
     render(<GradeSelector onSelect={() => {}} />);
     // A descrição não deve estar oculta atrás de breakpoint (`hidden sm:inline`).
     const desc = screen.getByText("Números pequenos e operações simples");
-    expect(desc).toBeVisible();
+    // O botão entra com fade (opacity 0→1); aguardar a animação concluir.
+    await waitFor(() => expect(desc).toBeVisible());
     expect(desc).not.toHaveClass("hidden");
   });
 
