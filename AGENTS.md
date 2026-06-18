@@ -513,12 +513,13 @@ A aplicação armazena dados no `localStorage` do navegador com as seguintes cha
 | `continha-magica-user-name` | Nome do usuário | `lib/user.ts` |
 | `continha-magica-migrated-v1` | Controle de migração do rebrand | `lib/migrate.ts` |
 | `continha-magica-onboarding-v1` | Flag "coachmark de primeiro uso visto" | `lib/onboarding.ts` |
+| `continha-magica-mastery-v1` | Maestria por categoria (sorteio adaptativo de questões) | `lib/mastery.ts` |
 
-Os hooks `useStoredGrade`, `useHistory`, `useUserName` e `useCoachmarkPending` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
+Os hooks `useStoredGrade`, `useHistory`, `useUserName`, `useCoachmarkPending` e `useMastery` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
 
 ### App nativo
 
-O app sincroniza as mesmas três chaves entre `expo-secure-store` (nativo) e `localStorage` do WebView, principalmente para contornar a limpeza de dados do WKWebView no iOS entre sessões.
+O app sincroniza as chaves `continha-magica-grade`, `continha-magica-history`, `continha-magica-user-name` e `continha-magica-mastery-v1` entre `expo-secure-store` (nativo) e `localStorage` do WebView, principalmente para contornar a limpeza de dados do WKWebView no iOS entre sessões.
 
 ---
 
