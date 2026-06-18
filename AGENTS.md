@@ -105,7 +105,7 @@ e nos feedbacks inline do `QuizPage.tsx`.
 | Expo SDK | 55 |
 | React Native | 0.83.6 |
 | React | 19.2.7 |
-| Expo Router | v7 (pasta `src/app/`) |
+| Expo Router | `~55.0.0` (versionado junto com o SDK 55; pasta `src/app/`) |
 | react-native-webview | 13.16.0 |
 | expo-secure-store | Persistência nativa sincronizada com localStorage |
 | @react-native-community/netinfo | Detecção de conectividade |
@@ -122,8 +122,12 @@ app/                          # App Router do Next.js
   api/
     auth/[...nextauth]/route.ts  # Handlers do NextAuth
     session/route.ts             # Registra sessão de quiz e acumula XP na liga
+    historico/route.ts           # Retorna o histórico de sessões do usuário autenticado (nuvem)
     liga/semana/route.ts         # Retorna placar da liga semanal
     cron/liga/route.ts           # Processa promoção/rebaixamento (protegido por CRON_SECRET)
+    native-auth/start/route.ts       # Inicia o login nativo (PKCE) no browser do sistema
+    native-auth/complete/route.ts    # Callback do OAuth; emite código de uso único
+    native-auth/exchange/route.ts    # Troca código + verifier por sessão NextAuth
 
 components/                   # Componentes React
   ui/                         # Componentes do shadcn/ui (button, input, badge, card)
@@ -133,7 +137,7 @@ components/                   # Componentes React
   QuestionCardItem.tsx        # Wrapper memoizado que liga QuestionCard à lista
   GradeSelector.tsx           # Tela de seleção do ano escolar
   NamePrompt.tsx              # Tela inicial para coletar o nome do usuário
-  HistoryPanel.tsx            # Modal com histórico de atividades
+  HistoryPanel.tsx            # Modal de histórico; mescla histórico local com o da nuvem (lazy) para autenticados
   LeaguePanel.tsx             # Painel da liga semanal (login, placar, zonas)
   Celebration.tsx             # Animação de confete para 18+ acertos
   Pixel.tsx                   # Mascote SVG com 4 poses: idle | correct | wrong | thinking
@@ -141,10 +145,14 @@ components/                   # Componentes React
 
 lib/                          # Utilitários e lógica de negócio
   questions.ts                # Geração de questões, configurações por ano, tipos
-  history.ts                  # Persistência e hook do histórico no localStorage
+  history.ts                  # Persistência e hook do histórico no localStorage; mergeHistories/makeId
   user.ts                     # Persistência e hook do nome do usuário no localStorage
   prisma.ts                   # Cliente Prisma singleton
   league.ts                   # Constantes e regras das ligas + cálculo de XP
+  migrate.ts                  # Migração one-shot do rebrand (chaves antigas → continha-magica-*)
+  onboarding.ts               # Flag e hook do coachmark de primeiro uso
+  auth-client.ts              # Helpers de autenticação no cliente
+  native-auth.ts              # Handoff PKCE do login nativo (challenge, code de uso único)
   utils.ts                    # Função `cn` para mesclar classes Tailwind
 
 auth.ts                       # Configuração do NextAuth v5 (Google OAuth + PrismaAdapter)
@@ -377,16 +385,22 @@ tests/
     lib/history.test.ts
     lib/user.test.ts
     lib/utils.test.ts
+    lib/onboarding.test.ts
+    lib/auth-client.test.ts
   components/    # Testes de componentes React com Testing Library
     NamePrompt.test.tsx
     GradeSelector.test.tsx
     QuestionCard.test.tsx
     HistoryPanel.test.tsx
     LeaguePanel.test.tsx
+    Pixel.test.tsx
+    QuizPage.test.tsx
   api/           # Testes de integração das API routes
     session.test.ts
+    historico.test.ts
     liga-semana.test.ts
     cron-liga.test.ts
+    native-auth.test.ts
     helpers.ts     # Utilitários para criar requisições e resetar banco
   e2e/           # Testes end-to-end com Playwright
     quiz-flow.spec.ts
@@ -519,11 +533,13 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 - `LeagueTier`: enum com 10 ligas (`bronze`, `prata`, `ouro`, `safira`, `rubi`, `esmeralda`, `ametista`, `perola`, `obsidiana`, `diamante`).
 - `LeagueGroup`: grupo semanal de usuários competindo entre si, identificado por `tier`, `grade` e `weekStart`.
 - `LeagueMember`: membro de um grupo em uma semana específica, com `xpWeekly`, `finalRank`, `promoted` e `demoted`.
-- `WeeklyScore`: registro individual de cada sessão de quiz para auditoria.
+- `WeeklyScore`: registro individual de cada sessão de quiz para auditoria. Inclui `clientId` (id estável gerado no cliente via `makeId`) para deduplicar o histórico da nuvem com o local.
+- `NativeAuthCode`: código de uso único do handoff PKCE do login nativo (`codeHash`, `challenge`, `expires`, `consumed`). Nunca guarda o code puro.
 
 ### API routes
 
-- `POST /api/session`: recebe `grade`, `correct` e `answers` (array de 20 booleanos). Recalcula os acertos e o XP no servidor, registra a sessão e atualiza o grupo semanal do usuário.
+- `POST /api/session`: recebe `grade`, `correct`, `answers` (array de 20 booleanos) e um `clientId` opcional. Recalcula os acertos e o XP no servidor, registra a sessão (com `clientId` para dedup) e atualiza o grupo semanal do usuário.
+- `GET /api/historico`: retorna as últimas 50 sessões (`WeeklyScore`) do usuário autenticado, usadas pelo `HistoryPanel` para mesclar o histórico da nuvem com o local.
 - `GET /api/liga/semana`: retorna o placar do grupo atual do usuário autenticado, com zonas de promoção (`promotion`), segurança (`safe`) e rebaixamento (`demotion`).
 - `GET /api/cron/liga`: endpoint protegido por `CRON_SECRET` (header `Authorization: Bearer <CRON_SECRET>`). Processa os grupos da semana anterior, define `finalRank`, `promoted`, `demoted` e atualiza `currentLeague` dos usuários.
 - `GET /api/native-auth/start`: inicia o login nativo (browser do sistema), grava o challenge PKCE e o deep link em cookies httpOnly.
