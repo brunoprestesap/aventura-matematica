@@ -22,6 +22,11 @@ model User {
   // Ano escolar preferido (sincronizado do localStorage na primeira sessão autenticada)
   grade         Int        @default(4) // 1–9
 
+  // Campos de assinatura
+  trialStart              DateTime?
+  subscriptionStatus      SubscriptionStatus @default(free)
+  subscriptionPeriodEnd   DateTime?
+
   accounts          Account[]
   sessions          Session[]
   weeklyScores      WeeklyScore[]
@@ -100,6 +105,14 @@ enum LeagueTier {
   perola
   obsidiana
   diamante
+}
+
+enum SubscriptionStatus {
+  free
+  trialing
+  active
+  canceled
+  past_due
 }
 
 // Grupo semanal de usuários competindo entre si

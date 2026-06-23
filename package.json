@@ -19,6 +19,7 @@
     "@auth/prisma-adapter": "^2.11.2",
     "@base-ui/react": "^1.5.0",
     "@prisma/client": "^6.19.3",
+    "@revenuecat/purchases-js": "^1.45.0",
     "@vercel/analytics": "^2.0.1",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
