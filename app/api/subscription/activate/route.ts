@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { getRCSubscriber, hasActiveEntitlement } from "@/lib/revenuecat"
+import { getRCSubscriber, hasActiveEntitlement, type RCSubscriberResponse } from "@/lib/revenuecat"
 
 export async function POST() {
   const session = await auth()
@@ -9,7 +9,12 @@ export async function POST() {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   }
 
-  const rcData = await getRCSubscriber(session.user.id)
+  let rcData: RCSubscriberResponse
+  try {
+    rcData = await getRCSubscriber(session.user.id)
+  } catch {
+    return NextResponse.json({ error: "Erro ao consultar RevenueCat" }, { status: 502 })
+  }
 
   if (!hasActiveEntitlement(rcData)) {
     return NextResponse.json({ error: "Entitlement não encontrado no RevenueCat" }, { status: 402 })
