@@ -53,6 +53,7 @@ export function Paywall({ questions }: PaywallProps) {
       // Ativação imediata no servidor
       await fetch("/api/subscription/activate", { method: "POST" })
       await update()
+      setLoading(false)
     } catch (err) {
       // purchasePackage lança erro se o usuário cancelou — sem mensagem de erro nesses casos
       console.error("Erro ao assinar:", err)
