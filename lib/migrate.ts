@@ -51,8 +51,9 @@ const BUG_FIX_DATE = "2026-06-22T00:00:00.000Z";
  */
 export function cleanCorruptedHistoryScores(): void {
   if (typeof window === "undefined") return;
-  if (localStorage.getItem(HISTORY_CLEANED_KEY) === "1") return;
   try {
+    // Já limpou? Não faz nada.
+    if (localStorage.getItem(HISTORY_CLEANED_KEY) === "1") return;
     const history = readHistory();
     const cleaned = history.activities.filter(
       (a) => !(a.score === 0 && a.completedAt < BUG_FIX_DATE)
