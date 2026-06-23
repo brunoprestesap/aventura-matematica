@@ -8,7 +8,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 })
   }
 
-  const body = await request.json() as { trialStart?: string }
+  let body: { trialStart?: string }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 })
+  }
+
   if (!body.trialStart || isNaN(Date.parse(body.trialStart))) {
     return NextResponse.json({ error: "trialStart inválido" }, { status: 400 })
   }
