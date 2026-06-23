@@ -1,7 +1,8 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { prisma } from "@/lib/prisma"
+import { SubscriptionStatus } from "@prisma/client"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -30,8 +31,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     session({ session, user }) {
       // Expõe o id do usuário na sessão para uso nas API routes
-      session.user.id = user.id;
-      return session;
+      session.user.id = user.id
+      session.user.subscriptionStatus =
+        user.subscriptionStatus ?? SubscriptionStatus.free
+      session.user.subscriptionPeriodEnd = user.subscriptionPeriodEnd ?? null
+      session.user.trialStart = user.trialStart ?? null
+      return session
     },
   },
-});
+})
