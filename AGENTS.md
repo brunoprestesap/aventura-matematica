@@ -516,6 +516,7 @@ A aplicação armazena dados no `localStorage` do navegador com as seguintes cha
 | `continha-magica-migrated-v1` | Controle de migração do rebrand | `lib/migrate.ts` |
 | `continha-magica-onboarding-v1` | Flag "coachmark de primeiro uso visto" | `lib/onboarding.ts` |
 | `continha-magica-mastery-v1` | Maestria por categoria (sorteio adaptativo de questões) | `lib/mastery.ts` |
+| `continha-magica-history-cleaned-v1` | Guard da migration de scores corrompidos (score=0 antes de 22/06/2026) | `lib/migrate.ts` |
 
 Os hooks `useStoredGrade`, `useHistory`, `useUserName`, `useCoachmarkPending` e `useMastery` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
 

@@ -1,3 +1,5 @@
+import { readHistory, writeHistory } from "@/lib/history";
+
 /**
  * Migra dados do localStorage das chaves antigas (Aventura Matemática)
  * para as chaves novas (Continha Mágica).
@@ -34,5 +36,32 @@ export function migrateLocalStorage(): void {
     localStorage.setItem(MIGRATION_KEY, "1");
   } catch {
     // Falha silenciosa — localStorage pode estar indisponível (modo privado, etc.)
+  }
+}
+
+export const HISTORY_CLEANED_KEY = "continha-magica-history-cleaned-v1";
+
+const BUG_FIX_DATE = "2026-06-22T00:00:00.000Z";
+
+/**
+ * Remove do histórico local as entradas com score=0 geradas por um bug
+ * anterior a 22/06/2026, quando o cálculo de acertos estava incorreto.
+ *
+ * Executa apenas uma vez por dispositivo (guard key). Idempotente.
+ */
+export function cleanCorruptedHistoryScores(): void {
+  if (typeof window === "undefined") return;
+  if (localStorage.getItem(HISTORY_CLEANED_KEY) === "1") return;
+  try {
+    const history = readHistory();
+    const cleaned = history.activities.filter(
+      (a) => !(a.score === 0 && a.completedAt < BUG_FIX_DATE)
+    );
+    if (cleaned.length < history.activities.length) {
+      writeHistory({ ...history, activities: cleaned });
+    }
+    localStorage.setItem(HISTORY_CLEANED_KEY, "1");
+  } catch {
+    // falha silenciosa — não grava a guard key; tentará na próxima sessão
   }
 }

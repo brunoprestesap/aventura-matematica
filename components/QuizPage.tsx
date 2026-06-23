@@ -63,13 +63,12 @@ import {
   X,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { migrateLocalStorage } from "@/lib/migrate";
+import { migrateLocalStorage, cleanCorruptedHistoryScores } from "@/lib/migrate";
 
-// Migra os dados das chaves antigas (Aventura Matemática) ao carregar o módulo,
-// antes de qualquer leitura síncrona do localStorage feita pelos hooks de store.
-// O módulo só roda no cliente (QuizPageLoader usa ssr: false) e a função é
-// idempotente e protegida por guarda `typeof window`.
+// Migrações one-shot do localStorage. Rodam antes de qualquer leitura
+// síncrona dos hooks de store. Idempotentes e protegidas por guard keys.
 migrateLocalStorage();
+cleanCorruptedHistoryScores();
 
 const LeaguePanel = dynamic(
   () => import("@/components/LeaguePanel").then((mod) => mod.LeaguePanel),
