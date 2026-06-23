@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { m, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react"; // AnimatePresence ainda usado no coachmark e resultado
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { AnswerStatus } from "@/components/QuestionCard";
@@ -25,6 +25,7 @@ import {
 import { GradeSelector } from "@/components/GradeSelector";
 import { HistoryPanel } from "@/components/HistoryPanel";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { ModalSheet } from "@/components/ModalSheet";
 import { NamePrompt } from "@/components/NamePrompt";
 import {
   readHistory,
@@ -44,8 +45,6 @@ import {
   staggerContainer,
   listItem,
   popIn,
-  overlayFade,
-  modalSpring,
 } from "@/lib/motion";
 import {
   getMastery,
@@ -144,8 +143,9 @@ export function QuizPage() {
   // há um nome salvo localmente. Nunca sobrescreve um nome já informado.
   useEffect(() => {
     if (userName === null && session?.user?.name) {
-      writeUserName(session.user.name);
-      notifyUserNameChanged();
+      const name = session.user.name.trim();
+      if (!name) return;
+      if (writeUserName(name)) notifyUserNameChanged();
     }
   }, [userName, session]);
 
@@ -163,8 +163,7 @@ export function QuizPage() {
   }, [selectedGrade, questionKey]);
 
   const handleSetName = useCallback((name: string) => {
-    writeUserName(name);
-    notifyUserNameChanged();
+    if (writeUserName(name)) notifyUserNameChanged();
     setIsEditingName(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -249,12 +248,19 @@ export function QuizPage() {
 
     const clientId = makeId();
 
+    // Calcula correctCount direto de `answers` — não usa `score`, que depende
+    // de `statuses` e é sempre 0 enquanto `submitted=false` (estado atual aqui).
+    const answersArray = questions.map(
+      (q) => Number(answers[q.id]?.trim()) === q.answer
+    );
+    const correctCount = answersArray.filter(Boolean).length;
+
     const history = readHistory();
     writeHistory(
       addActivity(
         history,
         selectedGrade,
-        score,
+        correctCount,
         questions.length,
         new Date().toISOString(),
         clientId
@@ -287,17 +293,13 @@ export function QuizPage() {
     notifyMasteryChanged();
 
     // Envia resultado para a liga em background (não bloqueia a UI)
-    const answersArray = questions.map(
-      (q) => Number(answers[q.id]?.trim()) === q.answer
-    );
-
     if (answersArray.length === 20) {
       fetch("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           grade: selectedGrade,
-          correct: score,
+          correct: correctCount,
           answers: answersArray,
           clientId,
         }),
@@ -305,7 +307,7 @@ export function QuizPage() {
         // Falha silenciosa — a liga não deve bloquear o fluxo do quiz
       });
     }
-  }, [selectedGrade, submitted, score, questions, answers]);
+  }, [selectedGrade, submitted, questions, answers]);
 
   const allAnswered = answeredCount === questions.length;
 
@@ -583,52 +585,29 @@ export function QuizPage() {
         </div>
 
         {/* Modal da Liga */}
-        <AnimatePresence>
-          {leagueOpen && (
-          <m.div
-            variants={overlayFade}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4"
-            onClick={() => setLeagueOpen(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Liga semanal"
-          >
-            <m.div
-              variants={modalSpring}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="max-h-[85vh] w-full max-w-md overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:rounded-[2rem] pb-[env(safe-area-inset-bottom)]"
-              onClick={(e) => e.stopPropagation()}
+        <ModalSheet open={leagueOpen} onClose={() => setLeagueOpen(false)} ariaLabel="Liga semanal">
+          <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
+            <div className="flex items-center gap-2 text-brand-dark">
+              <Trophy className="size-5" aria-hidden="true" />
+              <h2 className="text-base font-black sm:text-lg">
+                Liga semanal
+              </h2>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setLeagueOpen(false)}
+              className="rounded-full text-slate-500 hover:bg-brand-light hover:text-brand-dark"
             >
-              <div className="flex items-center justify-between border-b border-slate-100 bg-brand-light p-4">
-                <div className="flex items-center gap-2 text-brand-dark">
-                  <Trophy className="size-5" aria-hidden="true" />
-                  <h2 className="text-base font-black sm:text-lg">
-                    Liga semanal
-                  </h2>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setLeagueOpen(false)}
-                  className="rounded-full text-slate-500 hover:bg-brand-light hover:text-brand-dark"
-                >
-                  <X className="size-5" aria-hidden="true" />
-                  <span className="sr-only">Fechar</span>
-                </Button>
-              </div>
-              <div className="overflow-y-auto p-3 sm:p-4">
-                <LeaguePanel />
-              </div>
-            </m.div>
-          </m.div>
-          )}
-        </AnimatePresence>
+              <X className="size-5" aria-hidden="true" />
+              <span className="sr-only">Fechar</span>
+            </Button>
+          </div>
+          <div className="overflow-y-auto p-3 sm:p-4">
+            <LeaguePanel />
+          </div>
+        </ModalSheet>
       </main>
     </div>
     );

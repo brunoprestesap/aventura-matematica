@@ -2,6 +2,7 @@ import type { MasteryMap } from "./mastery";
 import {
   MIN_PER_CATEGORY,
   MAX_PER_CATEGORY,
+  NEUTRAL_MASTERY,
   NEUTRAL_SCORE,
   NOISE_MIN,
   NOISE_MAX,
@@ -398,7 +399,10 @@ function allocateCounts(
   count: number
 ): Record<QuestionCategory, number> {
   const n = CATEGORIES.length; // 6
-  const capExtra = MAX_PER_CATEGORY - MIN_PER_CATEGORY; // 7
+  // effectiveMax cresce para acomodar counts além do limite padrão (ex: testes
+  // com count=100); para count=20 o resultado é idêntico a MAX_PER_CATEGORY.
+  const effectiveMax = Math.max(MAX_PER_CATEGORY, Math.ceil(count / n));
+  const capExtra = effectiveMax - MIN_PER_CATEGORY;
   const remaining = count - MIN_PER_CATEGORY * n; // extras a distribuir (14)
 
   // 1. Pesos: categorias fracas pesam mais; ruído evita padrões previsíveis.
@@ -456,29 +460,9 @@ export function generateQuestions(
 ): Question[] {
   const generators = makeGenerators(grade);
 
-  if (!mastery) {
-    const questions: Question[] = [];
-
-    // Garante distribuição equilibrada: pelo menos floor(count/categories)
-    const basePerCategory = Math.floor(count / CATEGORIES.length);
-    for (const category of CATEGORIES) {
-      for (let i = 0; i < basePerCategory; i++) {
-        questions.push(generators[category]());
-      }
-    }
-
-    // Completa o restante aleatoriamente
-    while (questions.length < count) {
-      const category = CATEGORIES[rand(0, CATEGORIES.length - 1)];
-      questions.push(generators[category]());
-    }
-
-    // Embaralha
-    return questions.sort(() => Math.random() - 0.5);
-  }
-
   // Caminho adaptativo: proporção ponderada pela maestria.
-  const counts = allocateCounts(mastery, count);
+  // Sem mastery fornecida, usa NEUTRAL_MASTERY (distribuição uniforme).
+  const counts = allocateCounts(mastery ?? NEUTRAL_MASTERY, count);
   const questions: Question[] = [];
   for (const category of CATEGORIES) {
     for (let i = 0; i < counts[category]; i++) {
@@ -486,6 +470,5 @@ export function generateQuestions(
     }
   }
 
-  // Embaralha (mesma ordem aleatória do caminho uniforme)
   return questions.sort(() => Math.random() - 0.5);
 }

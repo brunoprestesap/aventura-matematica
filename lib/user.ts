@@ -13,12 +13,13 @@ export function readUserName(): string | null {
   return null;
 }
 
-export function writeUserName(name: string): void {
-  if (typeof window === "undefined") return;
+export function writeUserName(name: string): boolean {
+  if (typeof window === "undefined") return false;
   try {
     localStorage.setItem(USER_NAME_KEY, name);
+    return true;
   } catch {
-    // ignore
+    return false;
   }
 }
 

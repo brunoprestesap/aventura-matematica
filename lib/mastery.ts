@@ -34,7 +34,7 @@ const CATEGORY_KEYS: readonly QuestionCategory[] = [
 // Constante congelada → referência estável para o default de SSR e para o
 // fallback de parsing (evita o erro do React "The result of getSnapshot should
 // be cached to avoid an infinite loop", igual ao EMPTY_HISTORY em history.ts).
-const NEUTRAL_MASTERY: MasteryMap = Object.freeze({
+export const NEUTRAL_MASTERY: MasteryMap = Object.freeze({
   addition: NEUTRAL_SCORE,
   subtraction: NEUTRAL_SCORE,
   multiplication: NEUTRAL_SCORE,

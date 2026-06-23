@@ -18,10 +18,10 @@ export function markCoachmarkSeen(): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(ONBOARDING_KEY, "1");
+    window.dispatchEvent(new StorageEvent("storage", { key: ONBOARDING_KEY }));
   } catch {
-    // ignore
+    // ignore — se a escrita falhar, não dispara o evento (evita loop infinito do coachmark)
   }
-  window.dispatchEvent(new StorageEvent("storage", { key: ONBOARDING_KEY }));
 }
 
 function subscribeToCoachmark(callback: () => void) {

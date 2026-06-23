@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { m, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { overlayFade, modalSpring } from "@/lib/motion";
+import { ModalSheet } from "@/components/ModalSheet";
 import {
   Smartphone,
   X,
@@ -156,9 +155,8 @@ export function InstallPrompt() {
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    // A restauração do overflow fica em onExitComplete do ModalSheet,
+    // para esperar o fim da animação de saída antes de re-habilitar o scroll.
   }, [open]);
 
   // AnimatePresence cuida da animação de saída; basta fechar o estado.
@@ -246,28 +244,14 @@ export function InstallPrompt() {
         <span className="sm:hidden">Instalar</span>
       </Button>
 
-      <AnimatePresence>
-        {open && (
-        <m.div
-          variants={overlayFade}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 p-0 backdrop-blur-sm sm:items-center sm:p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) handleClose();
-          }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="install-title"
-        >
-          <m.div
-            variants={modalSpring}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:max-h-[85vh] sm:rounded-[2rem]"
-          >
+      <ModalSheet
+        open={open}
+        onClose={handleClose}
+        ariaLabelledBy="install-title"
+        overlayClassName="bg-slate-900/50"
+        sheetClassName="relative flex flex-col max-h-[92dvh] sm:max-h-[85vh] pb-0"
+        onExitComplete={() => { document.body.style.overflow = ""; }}
+      >
             {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
               {/* Decorative top gradient */}
@@ -410,10 +394,7 @@ export function InstallPrompt() {
                 </Button>
               </div>
             </div>
-          </m.div>
-        </m.div>
-        )}
-      </AnimatePresence>
+      </ModalSheet>
     </>
   );
 }

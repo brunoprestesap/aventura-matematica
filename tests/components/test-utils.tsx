@@ -8,7 +8,7 @@ import { LazyMotion, domAnimation } from "motion/react";
 // "invisível" no DOM de teste. Combinado com MotionGlobalConfig.skipAnimations
 // (em vitest.setup.ts), os componentes renderizam direto no estado final.
 function MotionWrapper({ children }: { children: ReactNode }) {
-  return <LazyMotion features={domAnimation}>{children}</LazyMotion>;
+  return <LazyMotion features={domAnimation} strict>{children}</LazyMotion>;
 }
 
 function render(ui: ReactElement, options?: Parameters<typeof rtlRender>[1]) {
