@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { useSession } from "next-auth/react"
 import { SubscriptionStatus } from "@prisma/client"
 
@@ -27,6 +28,12 @@ export function useSubscriptionStatus(): {
   daysLeft: number
 } {
   const { data: session, status: sessionStatus } = useSession()
+  // Captura trialStart uma vez (evita efeito colateral em cada render)
+  const trialStartRef = useRef<Date | null>(null)
+  if (trialStartRef.current === null) {
+    trialStartRef.current = getOrSetTrialStart()
+  }
+  const localTrialStart = trialStartRef.current
 
   if (sessionStatus === "loading") return { status: "loading", daysLeft: 0 }
 
@@ -49,8 +56,7 @@ export function useSubscriptionStatus(): {
 
     // free (sync-trial não chamado ainda) → fallback localStorage
     if (sub === SubscriptionStatus.free) {
-      const trialStart = getOrSetTrialStart()
-      const left = trialDaysLeft(trialStart)
+      const left = trialDaysLeft(localTrialStart)
       if (left > 0) return { status: "trial", daysLeft: left }
     }
 
@@ -58,7 +64,6 @@ export function useSubscriptionStatus(): {
   }
 
   // Anônimo: usa localStorage
-  const trialStart = getOrSetTrialStart()
-  const left = trialDaysLeft(trialStart)
+  const left = trialDaysLeft(localTrialStart)
   return left > 0 ? { status: "trial", daysLeft: left } : { status: "expired", daysLeft: 0 }
 }

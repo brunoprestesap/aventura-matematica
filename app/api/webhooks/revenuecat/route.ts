@@ -14,6 +14,10 @@ interface RCWebhookPayload {
 }
 
 export async function POST(request: NextRequest) {
+  if (!process.env.REVENUECAT_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Webhook não configurado" }, { status: 500 })
+  }
+
   // Valida o token de autenticação do webhook
   const authHeader = request.headers.get("authorization") ?? ""
   const expectedToken = `Bearer ${process.env.REVENUECAT_WEBHOOK_SECRET}`
@@ -21,7 +25,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
   }
 
-  const payload = (await request.json()) as RCWebhookPayload
+  let payload: RCWebhookPayload
+  try {
+    payload = await request.json() as RCWebhookPayload
+  } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 })
+  }
   const { type, app_user_id, expiration_at_ms } = payload.event
 
   // Converte o timestamp (ms) para Date, se presente
