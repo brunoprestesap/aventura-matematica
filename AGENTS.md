@@ -517,6 +517,7 @@ A aplicação armazena dados no `localStorage` do navegador com as seguintes cha
 | `continha-magica-onboarding-v1` | Flag "coachmark de primeiro uso visto" | `lib/onboarding.ts` |
 | `continha-magica-mastery-v1` | Maestria por categoria (sorteio adaptativo de questões) | `lib/mastery.ts` |
 | `continha-magica-history-cleaned-v1` | Guard da migration de scores corrompidos (score=0 antes de 22/06/2026) | `lib/migrate.ts` |
+| `continha-magica-trial-start` | Data ISO de início do trial (anônimo) | `lib/subscription.ts` |
 
 Os hooks `useStoredGrade`, `useHistory`, `useUserName`, `useCoachmarkPending` e `useMastery` usam `useSyncExternalStore` para reagir a mudanças no `localStorage`.
 
@@ -549,6 +550,9 @@ O backend existe exclusivamente para suportar autenticação e ligas semanais. A
 - `GET /api/native-auth/start`: inicia o login nativo (browser do sistema), grava o challenge PKCE e o deep link em cookies httpOnly.
 - `GET /api/native-auth/complete`: callback do OAuth (browser do sistema); emite um código de uso único e redireciona ao deep link `continhamagica://auth-callback`.
 - `POST /api/native-auth/exchange`: troca o código + verifier (PKCE) por uma sessão NextAuth (cria `Session`, seta o cookie). Chamado de dentro do WebView.
+- `POST /api/subscription/sync-trial`: persiste `trialStart` do cliente no DB (somente se null). Idempotente.
+- `POST /api/subscription/activate`: consulta RC REST API para verificar entitlement `premium` e ativa `subscriptionStatus=active`. Chamado pelo client pós-compra.
+- `POST /api/webhooks/revenuecat`: processa eventos RC (INITIAL_PURCHASE, RENEWAL, CANCELLATION, UNCANCELLATION, BILLING_ISSUE, EXPIRATION). Protegido por `Authorization: Bearer {REVENUECAT_WEBHOOK_SECRET}`.
 
 > O cron é **idempotente**: a nova liga vem de `leagueUp`/`leagueDown(group.tier)` (tier imutável) e do rank (o XP da semana encerrada não muda mais), então rodá-lo duas vezes produz o mesmo resultado. **Não** baseie a promoção em `user.currentLeague`. A zona de rebaixamento só existe se `totalMembers > promotionSlots + demotionSlots` — a mesma regra (`hasSafeZone`) deve valer no cron e no `GET /api/liga/semana`.
 
