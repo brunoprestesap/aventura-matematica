@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Plus, Minus, X, Divide, TrendingUp, BookOpen } from "lucide-react";
+import { Plus, Minus, X, Divide, TrendingUp, BookOpen, CheckCircle } from "lucide-react";
 import { Pixel } from "@/components/Pixel";
 
 export const metadata: Metadata = {
@@ -72,19 +72,19 @@ const FAQ = [
       "Do 1º ao 9º ano do ensino fundamental. Cada ano tem dificuldade calibrada: números menores e operações básicas nos primeiros anos, operações maiores e sequências mais complexas nos finais.",
   },
   {
-    pergunta: "Preciso criar uma conta para usar?",
+    pergunta: "Como funciona o período gratuito?",
     resposta:
-      "Não. O quiz funciona sem cadastro. A conta (login com Google) é opcional e desbloqueia o sistema de ligas semanais.",
+      "Ao acessar o Continha Mágica pela primeira vez, você tem 15 dias de acesso completo gratuito, sem precisar criar conta ou informar cartão. Após esse período, é necessário assinar um dos planos para continuar.",
+  },
+  {
+    pergunta: "O que está incluído na assinatura?",
+    resposta:
+      "A assinatura dá acesso ilimitado a todas as séries (1º ao 9º ano), questões geradas na hora, e ao sistema de ligas semanais com ranking. Os planos custam R$ 4,90/mês ou R$ 39,90/ano (economia de 32%). Você pode cancelar a qualquer momento.",
   },
   {
     pergunta: "Posso usar no celular?",
     resposta:
       "Sim. O site é responsivo e pode ser instalado como aplicativo no Android e iOS (PWA). Há também um app nativo nas lojas.",
-  },
-  {
-    pergunta: "As questões são sempre as mesmas?",
-    resposta:
-      "Não. A cada acesso, 20 questões novas são geradas aleatoriamente dentro das categorias e do nível de dificuldade do ano selecionado.",
   },
   {
     pergunta: "Como funciona o sistema de ligas?",
@@ -217,7 +217,53 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── Bloco 4: FAQ ─────────────────────────────────────── */}
+        {/* ── Bloco 4: Preços ─────────────────────────────────── */}
+        <section className="px-4 py-16 max-w-3xl mx-auto w-full">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#0C1A19] text-center mb-4">
+            Acesso completo por menos que um café
+          </h2>
+          <ul className="flex flex-col gap-3 mb-10 mt-8">
+            {[
+              "Todas as séries do 1º ao 9º ano",
+              "Questões ilimitadas, geradas na hora",
+              "Liga semanal com ranking e progressão de ligas",
+              "Funciona no celular, tablet e computador",
+            ].map((item) => (
+              <li key={item} className="flex items-center gap-3 text-[#0C1A19]">
+                <CheckCircle className="w-5 h-5 text-[#0D9488] shrink-0" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="rounded-2xl border-2 border-[#CCFBF1] bg-white p-5 flex flex-col gap-1">
+              <div className="text-xs text-[#64748B] font-medium">Mensal</div>
+              <div className="text-2xl font-bold text-[#0C1A19]">R$ 4,90</div>
+              <div className="text-xs text-[#64748B]">por mês</div>
+            </div>
+            <div className="relative rounded-2xl border-2 border-[#0D9488] bg-[#CCFBF1] p-5 flex flex-col gap-1">
+              <span className="absolute -top-3 right-3 bg-[#EAB308] text-white text-[10px] font-bold px-3 py-1 rounded-full">
+                economize 32%
+              </span>
+              <div className="text-xs text-[#64748B] font-medium">Anual</div>
+              <div className="text-2xl font-bold text-[#0C1A19]">R$ 39,90</div>
+              <div className="text-xs text-[#64748B]">por ano</div>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <Link
+              href="/jogar"
+              className="inline-flex items-center gap-2 rounded-full bg-[#0D9488] px-8 py-4 text-lg font-semibold text-white hover:bg-[#0f766e] transition-colors"
+            >
+              Começar 15 dias grátis →
+            </Link>
+            <p className="text-sm text-[#64748B]">
+              Sem cartão de crédito no trial · Cancele quando quiser
+            </p>
+          </div>
+        </section>
+
+        {/* ── Bloco 5: FAQ ─────────────────────────────────────── */}
         <section className="px-4 py-16 max-w-3xl mx-auto w-full">
           <h2 className="text-2xl md:text-3xl font-bold text-[#0C1A19] text-center mb-10">
             Perguntas frequentes
