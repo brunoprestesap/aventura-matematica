@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://continhamagica.vercel.app",
   },
+  description:
+    "Atividades de matemática do 1º ao 9º ano com 15 dias grátis. Adição, subtração, multiplicação, divisão, sequências e problemas. Sem cadastro para começar.",
 };
 
 const CATEGORIAS = [
@@ -143,17 +145,23 @@ export default function LandingPage() {
             Atividades de matemática para o ensino fundamental
           </h1>
           <p className="text-lg md:text-xl text-[#CCFBF1] max-w-2xl">
-            Questões geradas na hora, do 1º ao 9º ano — adição, subtração,
-            multiplicação, divisão, sequências e problemas contextualizados
+            Do 1º ao 9º ano — adição, subtração, multiplicação, divisão, sequências
+            e problemas contextualizados. Experimente grátis por 15 dias.
           </p>
           <Link
             href="/jogar"
             className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#0D9488] px-8 py-4 text-lg font-semibold text-white hover:bg-[#0f766e] transition-colors"
           >
-            Começar agora →
+            Começar 15 dias grátis →
           </Link>
-          <p className="text-sm text-[#2DD4BF]">
-            Grátis · Sem cadastro · Funciona no celular
+          <p className="text-sm text-[#CCFBF1]">
+            Já é assinante?{" "}
+            <Link
+              href="/jogar"
+              className="underline underline-offset-2 hover:text-white transition-colors"
+            >
+              Acesse aqui
+            </Link>
           </p>
         </section>
 
