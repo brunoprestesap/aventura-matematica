@@ -7,6 +7,7 @@ const root = process.cwd();
 const svgFull = readFileSync(join(root, "assets/icon-source.svg"));
 const svgAdaptive = readFileSync(join(root, "assets/icon-source-adaptive.svg"));
 const svgSplash = readFileSync(join(root, "assets/splash-source.svg"));
+const svgOgImage = readFileSync(join(root, "assets/og-image-source.svg"));
 
 // Cria versão maskable com fundo #CCFBF1 (safe zone para ícones adaptáveis)
 const svgAdaptiveStr = svgAdaptive.toString("utf-8");
@@ -34,16 +35,23 @@ const icons: Array<{ svg: Buffer | string; out: string; size: number }> = [
   { svg: svgFull, out: "public/icons/icon-512x512.png", size: 512 },
   { svg: svgMaskable, out: "public/icons/maskable-icon-512x512.png", size: 512 },
   { svg: svgFull, out: "public/apple-touch-icon.png", size: 180 },
+
+  // SEO — og:image (tamanho dummy; tratado como caso especial abaixo)
+  { svg: svgOgImage, out: "public/og-image.png", size: 1200 },
 ];
 
 async function main() {
   for (const { svg, out, size } of icons) {
     const isSplash = out.includes("splash");
+    const isOgImage = out.includes("og-image");
     const pipeline = sharp(svg);
 
     if (isSplash) {
       // O splash já possui dimensões exatas no viewBox (1284×2778)
       pipeline.resize(1284, 2778, { fit: "contain" });
+    } else if (isOgImage) {
+      // og:image padrão Open Graph: 1200×630
+      pipeline.resize(1200, 630, { fit: "fill" });
     } else {
       pipeline.resize(size, size, { fit: "contain" });
     }
