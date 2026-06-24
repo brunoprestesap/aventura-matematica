@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Continha Mágica — Atividades de Matemática para o Ensino Fundamental",
     description:
-      "Atividades de matemática gratuitas para do 1º ao 9º ano. Geradas na hora, sem cadastro.",
+      "Atividades de matemática gratuitas do 1º ao 9º ano. Geradas na hora, sem cadastro.",
     url: "https://continhamagica.vercel.app",
     siteName: "Continha Mágica",
     locale: "pt_BR",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Continha Mágica — Atividades de Matemática",
-    description: "Questões de matemática para do 1º ao 9º ano. Grátis, sem cadastro.",
+    description: "Questões de matemática do 1º ao 9º ano. Grátis, sem cadastro.",
     images: ["/og-image.png"],
   },
 };
