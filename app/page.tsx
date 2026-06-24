@@ -108,7 +108,11 @@ const jsonLd = [
     url: "https://continhamagica.vercel.app",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web, Android, iOS",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "BRL" },
+    offers: [
+      { "@type": "Offer", price: "0", priceCurrency: "BRL", description: "Trial gratuito de 15 dias" },
+      { "@type": "Offer", price: "4.90", priceCurrency: "BRL", description: "Plano mensal" },
+      { "@type": "Offer", price: "39.90", priceCurrency: "BRL", description: "Plano anual" },
+    ],
     inLanguage: "pt-BR",
     audience: {
       "@type": "EducationalAudience",
@@ -159,6 +163,7 @@ export default function LandingPage() {
             <Link
               href="/jogar"
               className="underline underline-offset-2 hover:text-white transition-colors"
+              aria-label="Entrar como assinante"
             >
               Acesse aqui
             </Link>
@@ -242,7 +247,7 @@ export default function LandingPage() {
               <div className="text-xs text-[#64748B]">por mês</div>
             </div>
             <div className="relative rounded-2xl border-2 border-[#0D9488] bg-[#CCFBF1] p-5 flex flex-col gap-1">
-              <span className="absolute -top-3 right-3 bg-[#EAB308] text-white text-[10px] font-bold px-3 py-1 rounded-full">
+              <span className="absolute -top-3 right-3 bg-[#EAB308] text-[#0C1A19] text-[10px] font-bold px-3 py-1 rounded-full">
                 economize 32%
               </span>
               <div className="text-xs text-[#64748B] font-medium">Anual</div>
@@ -281,7 +286,7 @@ export default function LandingPage() {
           </dl>
         </section>
 
-        {/* ── Bloco 5: Footer ──────────────────────────────────── */}
+        {/* ── Bloco 6: Footer ──────────────────────────────────── */}
         <footer className="mt-auto border-t border-[#CCFBF1] px-4 py-8">
           <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#64748B]">
             <div className="flex gap-6">
