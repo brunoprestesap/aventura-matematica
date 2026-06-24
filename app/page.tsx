@@ -1,5 +1,5 @@
-import { QuizPageLoader } from "@/components/QuizPageLoader";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <QuizPageLoader />;
+  redirect("/jogar");
 }

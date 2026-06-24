@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Fluxo do quiz", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/jogar");
   });
 
   test("usuário completa uma rodada de quiz e vê o resultado", async ({ page }) => {
