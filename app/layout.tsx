@@ -17,8 +17,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Continha Mágica",
-  description: "Atividades de matemática que encantam — do 1º ao 9º ano",
+  title: {
+    default: "Continha Mágica — Atividades de Matemática para o Ensino Fundamental",
+    template: "%s | Continha Mágica",
+  },
+  description:
+    "Atividades de matemática gratuitas para do 1º ao 9º ano: adição, subtração, multiplicação, divisão, sequências e problemas. Geradas na hora, sem cadastro.",
+  keywords: [
+    "atividades de matemática",
+    "exercícios de matemática ensino fundamental",
+    "quiz de matemática online",
+    "matemática 1 ano",
+    "matemática 2 ano",
+    "matemática 3 ano",
+    "matemática 4 ano",
+    "matemática 5 ano",
+    "matemática 6 ano",
+    "matemática 7 ano",
+    "matemática 8 ano",
+    "matemática 9 ano",
+    "adição subtração multiplicação divisão",
+    "atividades matemática crianças",
+  ],
+  authors: [{ name: "Continha Mágica" }],
+  creator: "Continha Mágica",
+  metadataBase: new URL("https://continhamagica.vercel.app"),
   manifest: "/manifest.json",
   icons: {
     apple: "/apple-touch-icon.png",
@@ -29,9 +52,27 @@ export const metadata: Metadata = {
     title: "Continha Mágica",
   },
   openGraph: {
-    title: "Continha Mágica",
-    description: "Atividades de matemática que encantam — do 1º ao 9º ano",
+    title: "Continha Mágica — Atividades de Matemática para o Ensino Fundamental",
+    description:
+      "Atividades de matemática gratuitas para do 1º ao 9º ano. Geradas na hora, sem cadastro.",
+    url: "https://continhamagica.vercel.app",
+    siteName: "Continha Mágica",
+    locale: "pt_BR",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Continha Mágica — Atividades de Matemática para o Ensino Fundamental",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Continha Mágica — Atividades de Matemática",
+    description: "Questões de matemática para do 1º ao 9º ano. Grátis, sem cadastro.",
+    images: ["/og-image.png"],
   },
 };
 
