@@ -102,7 +102,7 @@ const jsonLd = [
     "@type": "WebApplication",
     name: "Continha Mágica",
     description:
-      "Atividades de matemática para do 1º ao 9º ano do ensino fundamental",
+      "Atividades de matemática do 1º ao 9º ano do ensino fundamental",
     url: "https://continhamagica.vercel.app",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web, Android, iOS",
@@ -143,7 +143,7 @@ export default function LandingPage() {
             Atividades de matemática para o ensino fundamental
           </h1>
           <p className="text-lg md:text-xl text-[#CCFBF1] max-w-2xl">
-            Questões geradas na hora para do 1º ao 9º ano — adição, subtração,
+            Questões geradas na hora, do 1º ao 9º ano — adição, subtração,
             multiplicação, divisão, sequências e problemas contextualizados
           </p>
           <Link
@@ -237,7 +237,7 @@ export default function LandingPage() {
               >
                 Começar
               </Link>
-              <span>Política de Privacidade</span>
+              <span className="opacity-40 cursor-default" title="Em breve">Política de Privacidade</span>
             </div>
             <p>© 2026 Continha Mágica — matemática que encanta</p>
           </div>
