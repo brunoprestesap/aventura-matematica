@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Continha Mágica",
   },
   description:
-    "Atividades de matemática gratuitas para do 1º ao 9º ano: adição, subtração, multiplicação, divisão, sequências e problemas. Geradas na hora, sem cadastro.",
+    "Atividades de matemática gratuitas do 1º ao 9º ano: adição, subtração, multiplicação, divisão, sequências e problemas. Geradas na hora, sem cadastro.",
   keywords: [
     "atividades de matemática",
     "exercícios de matemática ensino fundamental",
