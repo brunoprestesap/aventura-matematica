@@ -89,6 +89,10 @@ function buildBridgeScript(initialData: Record<string, string>): string {
 }
 
 const MAX_AUTO_RELOADS = 3;
+const LOAD_TIMEOUT_MS = 20_000;
+// Janela de tempo para detectar loops: reloads em sequência mais espaçados
+// que este valor são navegação legítima e resetam o contador.
+const RELOAD_LOOP_WINDOW_MS = 1500;
 
 export function WebViewBridge() {
   const webViewRef = useRef<WebView>(null);
@@ -96,6 +100,8 @@ export function WebViewBridge() {
   const [hasError, setHasError] = useState(false);
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
   const [autoReloadCount, setAutoReloadCount] = useState(0);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastLoadStartRef = useRef<number>(0);
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
   const { loginWithGoogle } = useGoogleAuth();
 
@@ -105,6 +111,13 @@ export function WebViewBridge() {
       setBridgeScript(buildBridgeScript(data));
     });
   }, [loadAllItems]);
+
+  // Limpa o timeout ao desmontar para evitar setState em componente morto
+  useEffect(() => {
+    return () => {
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    };
+  }, []);
 
   // Botão back do Android: navega dentro do WebView em vez de fechar o app
   useEffect(() => {
@@ -161,25 +174,36 @@ export function WebViewBridge() {
     setAutoReloadCount(0);
     setHasError(false);
     setIsLoading(true);
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
     webViewRef.current?.reload();
   }, []);
 
   const handleLoadStart = useCallback(() => {
     setIsLoading(true);
-    // Conta cada início de carregamento para detectar loops de
-    // redirecionamento (loadStart sem loadEnd bem-sucedido). O contador é
-    // zerado em handleLoadEnd a cada carregamento completo, então navegação
-    // normal nunca atinge o limite.
+    // Inicia timeout: se onLoadEnd não chegar em LOAD_TIMEOUT_MS, exibe erro.
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    loadTimeoutRef.current = setTimeout(() => {
+      setIsLoading(false);
+      setHasError(true);
+    }, LOAD_TIMEOUT_MS);
+    // Detecta loops de redirecionamento: apenas incrementa o contador se o
+    // loadStart anterior ocorreu dentro da janela de tempo. Reloads espaçados
+    // (ex: o usuário voltou ao app, o trial fez um reload único após compra)
+    // resetam o contador e não são tratados como loop.
+    const now = Date.now();
+    const isRapidReload = now - lastLoadStartRef.current < RELOAD_LOOP_WINDOW_MS;
+    lastLoadStartRef.current = now;
     setAutoReloadCount((count) => {
-      if (count >= MAX_AUTO_RELOADS) {
+      const next = isRapidReload ? count + 1 : 1;
+      if (next >= MAX_AUTO_RELOADS) {
         setHasError(true);
-        return count;
       }
-      return count + 1;
+      return next;
     });
   }, []);
 
   const handleLoadEnd = useCallback(() => {
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
     setIsLoading(false);
     // Carregamento concluído com sucesso: reseta o detector de loop.
     setAutoReloadCount(0);

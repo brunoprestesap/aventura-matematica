@@ -25,6 +25,7 @@
         "backgroundColor": "#0C1A19"
       },
       "package": "br.com.continhamagica.app",
+      "versionCode": 2,
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"
@@ -40,7 +41,8 @@
           "imageWidth": 200
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "extra": {
       "webAppUrl": "https://continhamagica.vercel.app",
