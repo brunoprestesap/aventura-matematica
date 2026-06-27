@@ -25,7 +25,7 @@
         "backgroundColor": "#0C1A19"
       },
       "package": "br.com.continhamagica.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"

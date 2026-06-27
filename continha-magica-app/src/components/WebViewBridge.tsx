@@ -89,7 +89,7 @@ function buildBridgeScript(initialData: Record<string, string>): string {
 }
 
 const MAX_AUTO_RELOADS = 3;
-const LOAD_TIMEOUT_MS = 20_000;
+const LOAD_TIMEOUT_MS = 30_000;
 // Janela de tempo para detectar loops: reloads em sequência mais espaçados
 // que este valor são navegação legítima e resetam o contador.
 const RELOAD_LOOP_WINDOW_MS = 1500;
