@@ -2,9 +2,10 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 
 interface Props {
   onRetry: () => void;
+  debugInfo?: string;
 }
 
-export function ErrorScreen({ onRetry }: Props) {
+export function ErrorScreen({ onRetry, debugInfo }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.emoji}>😕</Text>
@@ -12,6 +13,9 @@ export function ErrorScreen({ onRetry }: Props) {
       <Text style={styles.subtitle}>
         Verifique sua conexão e tente novamente.
       </Text>
+      {debugInfo ? (
+        <Text style={styles.debug}>{debugInfo}</Text>
+      ) : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Tentar novamente"
@@ -50,4 +54,11 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.8 },
   buttonText: { color: "#0D9488", fontWeight: "700", fontSize: 16 },
+  debug: {
+    fontSize: 11,
+    color: "#2DD4BF",
+    textAlign: "center",
+    fontFamily: "monospace",
+    marginTop: 4,
+  },
 });

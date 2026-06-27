@@ -89,23 +89,26 @@ function buildBridgeScript(initialData: Record<string, string>): string {
 }
 
 const MAX_AUTO_RELOADS = 3;
-const LOAD_TIMEOUT_MS = 30_000;
+const LOAD_TIMEOUT_MS = 45_000;
 // Janela de tempo para detectar loops: reloads em sequência mais espaçados
 // que este valor são navegação legítima e resetam o contador.
 const RELOAD_LOOP_WINDOW_MS = 1500;
 // Retries automáticos em caso de onError (rede instável, cold start, etc.)
-const MAX_AUTO_RETRIES = 2;
-const AUTO_RETRY_DELAY_MS = 3000;
+const MAX_AUTO_RETRIES = 5;
+// Backoff: 3s, 5s, 8s, 12s, 18s
+const RETRY_DELAYS_MS = [3000, 5000, 8000, 12000, 18000];
 
 export function WebViewBridge() {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [errorInfo, setErrorInfo] = useState<string | undefined>();
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
   const [autoReloadCount, setAutoReloadCount] = useState(0);
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoRetryCountRef = useRef(0);
+  const isRetryPendingRef = useRef(false);
   const lastLoadStartRef = useRef<number>(0);
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
   const { loginWithGoogle } = useGoogleAuth();
@@ -187,16 +190,21 @@ export function WebViewBridge() {
   }, []);
 
   // Tenta recarregar automaticamente até MAX_AUTO_RETRIES vezes antes de
-  // exibir a ErrorScreen. Cobre falhas transitórias de rede e cold start.
+  // exibir a ErrorScreen. Usa backoff crescente para cobrir cold start do
+  // servidor e instabilidade de rede (3s → 5s → 8s → 12s → 18s).
   const scheduleAutoRetry = useCallback((onGiveUp: () => void) => {
     if (autoRetryCountRef.current >= MAX_AUTO_RETRIES) {
+      isRetryPendingRef.current = false;
       onGiveUp();
       return;
     }
+    const delay = RETRY_DELAYS_MS[autoRetryCountRef.current] ?? 5000;
     autoRetryCountRef.current += 1;
+    isRetryPendingRef.current = true;
     retryTimeoutRef.current = setTimeout(() => {
+      isRetryPendingRef.current = false;
       webViewRef.current?.reload();
-    }, AUTO_RETRY_DELAY_MS);
+    }, delay);
   }, []);
 
   const handleLoadStart = useCallback(() => {
@@ -225,9 +233,20 @@ export function WebViewBridge() {
 
   const handleLoadEnd = useCallback(() => {
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-    setIsLoading(false);
-    // Carregamento concluído com sucesso: reseta o detector de loop.
-    setAutoReloadCount(0);
+    // Mantém o spinner visível se um retry está prestes a acontecer — evita
+    // que o usuário veja a tela de erro nativa do Android durante a espera.
+    if (!isRetryPendingRef.current) {
+      setIsLoading(false);
+      // Carga bem-sucedida: reseta contadores para garantir retries completos
+      // na próxima falha (sem este reset, falhas subsequentes teriam menos
+      // tentativas porque autoRetryCountRef ficaria com valor residual).
+      autoRetryCountRef.current = 0;
+      // Reseta o detector de loop apenas em carga bem-sucedida. Resetar
+      // incondicionalmente (em erro também) impede a acumulação do contador —
+      // o loadEnd do erro voltava o count para 0 antes do próximo loadStart
+      // rápido, fazendo o detector nunca atingir MAX_AUTO_RELOADS.
+      setAutoReloadCount(0);
+    }
   }, []);
 
   // Recupera o WebView quando o processo de conteúdo morre por pressão de
@@ -240,7 +259,7 @@ export function WebViewBridge() {
   // Aguarda o script de bridge estar pronto antes de renderizar o WebView
   if (bridgeScript === null) return <LoadingScreen />;
   if (hasError || autoReloadCount >= MAX_AUTO_RELOADS) {
-    return <ErrorScreen onRetry={handleRetry} />;
+    return <ErrorScreen onRetry={handleRetry} debugInfo={errorInfo} />;
   }
 
   return (
@@ -271,17 +290,24 @@ export function WebViewBridge() {
         // Eventos de ciclo de vida
         onLoadStart={handleLoadStart}
         onLoadEnd={handleLoadEnd}
-        onError={() => {
+        onError={(e) => {
+          const desc = e.nativeEvent.description ?? "onError";
+          const code = e.nativeEvent.code ?? "";
+          console.error("[WebView] onError:", code, desc, e.nativeEvent.url);
           if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
           scheduleAutoRetry(() => {
+            setErrorInfo(`${code} ${desc}`.trim());
             setIsLoading(false);
             setHasError(true);
           });
         }}
         onHttpError={(e) => {
           if (e.nativeEvent.statusCode >= 500) {
+            const info = `HTTP ${e.nativeEvent.statusCode} ${e.nativeEvent.url}`;
+            console.error("[WebView] onHttpError:", info);
             if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
             scheduleAutoRetry(() => {
+              setErrorInfo(info);
               setIsLoading(false);
               setHasError(true);
             });
