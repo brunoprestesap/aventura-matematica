@@ -93,6 +93,9 @@ const LOAD_TIMEOUT_MS = 30_000;
 // Janela de tempo para detectar loops: reloads em sequência mais espaçados
 // que este valor são navegação legítima e resetam o contador.
 const RELOAD_LOOP_WINDOW_MS = 1500;
+// Retries automáticos em caso de onError (rede instável, cold start, etc.)
+const MAX_AUTO_RETRIES = 2;
+const AUTO_RETRY_DELAY_MS = 3000;
 
 export function WebViewBridge() {
   const webViewRef = useRef<WebView>(null);
@@ -101,6 +104,8 @@ export function WebViewBridge() {
   const [bridgeScript, setBridgeScript] = useState<string | null>(null);
   const [autoReloadCount, setAutoReloadCount] = useState(0);
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoRetryCountRef = useRef(0);
   const lastLoadStartRef = useRef<number>(0);
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
   const { loginWithGoogle } = useGoogleAuth();
@@ -112,10 +117,11 @@ export function WebViewBridge() {
     });
   }, [loadAllItems]);
 
-  // Limpa o timeout ao desmontar para evitar setState em componente morto
+  // Limpa os timers ao desmontar para evitar setState em componente morto
   useEffect(() => {
     return () => {
       if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
     };
   }, []);
 
@@ -174,8 +180,23 @@ export function WebViewBridge() {
     setAutoReloadCount(0);
     setHasError(false);
     setIsLoading(true);
+    autoRetryCountRef.current = 0;
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
     webViewRef.current?.reload();
+  }, []);
+
+  // Tenta recarregar automaticamente até MAX_AUTO_RETRIES vezes antes de
+  // exibir a ErrorScreen. Cobre falhas transitórias de rede e cold start.
+  const scheduleAutoRetry = useCallback((onGiveUp: () => void) => {
+    if (autoRetryCountRef.current >= MAX_AUTO_RETRIES) {
+      onGiveUp();
+      return;
+    }
+    autoRetryCountRef.current += 1;
+    retryTimeoutRef.current = setTimeout(() => {
+      webViewRef.current?.reload();
+    }, AUTO_RETRY_DELAY_MS);
   }, []);
 
   const handleLoadStart = useCallback(() => {
@@ -251,13 +272,19 @@ export function WebViewBridge() {
         onLoadStart={handleLoadStart}
         onLoadEnd={handleLoadEnd}
         onError={() => {
-          setIsLoading(false);
-          setHasError(true);
+          if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+          scheduleAutoRetry(() => {
+            setIsLoading(false);
+            setHasError(true);
+          });
         }}
         onHttpError={(e) => {
           if (e.nativeEvent.statusCode >= 500) {
-            setIsLoading(false);
-            setHasError(true);
+            if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+            scheduleAutoRetry(() => {
+              setIsLoading(false);
+              setHasError(true);
+            });
           }
         }}
         // Recuperação de morte do processo de renderização
