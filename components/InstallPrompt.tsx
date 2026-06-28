@@ -178,6 +178,7 @@ export function InstallPrompt() {
   }, [deferredPrompt, handleClose]);
 
   if (alreadyInstalled) return null;
+  if (typeof window !== "undefined" && (window as unknown as { __NATIVE_APP__?: boolean }).__NATIVE_APP__) return null;
 
   const androidInstructions: Record<Browser, { name: string; steps: string[]; tip: string }> = {
     chrome: {
