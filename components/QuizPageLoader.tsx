@@ -73,6 +73,21 @@ export function QuizPageLoader() {
     }
   }, [session?.user?.id, update])
 
+  // Sinaliza ao shell nativo que o conteúdo está pronto para exibição.
+  // O Android WebView não dispara onPageFinished em navegações SPA (history.pushState),
+  // então o bridge ficaria aguardando o onLoadEnd indefinidamente. Este postMessage
+  // permite que o WebViewBridge cancele o timeout e oculte o LoadingScreen.
+  useEffect(() => {
+    if (status === "loading") return
+    if (typeof window === "undefined") return
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).ReactNativeWebView?.postMessage(
+        JSON.stringify({ type: "PAGE_READY" })
+      )
+    } catch {}
+  }, [status])
+
   const grade = useMemo(() => readStoredGrade(), [])
   const questions = useMemo(() => generateQuestions(20, grade), [grade])
 

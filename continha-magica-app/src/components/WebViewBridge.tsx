@@ -172,6 +172,16 @@ export function WebViewBridge() {
           await clearItems();
         } else if (data.type === "NATIVE_LOGIN") {
           handleNativeLogin();
+        } else if (data.type === "PAGE_READY") {
+          // O PWA sinalizou que o conteúdo está pronto. Necessário porque o
+          // Android WebView não dispara onLoadEnd em navegações SPA (pushState).
+          console.log("[WebView] PAGE_READY — ocultando LoadingScreen");
+          if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+          if (!isRetryPendingRef.current) {
+            setIsLoading(false);
+            autoRetryCountRef.current = 0;
+            setAutoReloadCount(0);
+          }
         }
       } catch {
         // Ignora mensagens não-JSON vindas do PWA (ex: logs de analytics)
