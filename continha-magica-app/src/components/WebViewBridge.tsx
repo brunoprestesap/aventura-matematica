@@ -110,6 +110,7 @@ export function WebViewBridge() {
   const autoRetryCountRef = useRef(0);
   const isRetryPendingRef = useRef(false);
   const lastLoadStartRef = useRef<number>(0);
+  const lastLoadStartUrlRef = useRef<string>("");
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
   const { loginWithGoogle } = useGoogleAuth();
 
@@ -210,7 +211,7 @@ export function WebViewBridge() {
     }, delay);
   }, []);
 
-  const handleLoadStart = useCallback(() => {
+  const handleLoadStart = useCallback((event: { nativeEvent: { url: string } }) => {
     setIsLoading(true);
     // Inicia timeout: se onLoadEnd não chegar em LOAD_TIMEOUT_MS, exibe erro.
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
@@ -219,19 +220,22 @@ export function WebViewBridge() {
       setIsLoading(false);
       setHasError(true);
     }, LOAD_TIMEOUT_MS);
-    // Detecta loops de redirecionamento: apenas incrementa o contador se o
-    // loadStart anterior ocorreu dentro da janela de tempo. Reloads espaçados
-    // (ex: o usuário voltou ao app, o trial fez um reload único após compra)
-    // resetam o contador e não são tratados como loop.
+    // Detecta loops de redirecionamento: conta apenas recargas rápidas da
+    // MESMA URL. Navegação para uma URL diferente (ex: '/' → '/jogar')
+    // nunca é loop — caso contrário, o clique do usuário dentro de 1,5s
+    // após o redirect inicial seria contado erroneamente.
+    const url = event.nativeEvent.url;
     const now = Date.now();
     const gap = now - lastLoadStartRef.current;
-    const isRapidReload = gap < RELOAD_LOOP_WINDOW_MS;
+    const isSameUrl = url === lastLoadStartUrlRef.current;
+    const isRapidReload = gap < RELOAD_LOOP_WINDOW_MS && isSameUrl;
     lastLoadStartRef.current = now;
-    console.log(`[WebView] loadStart gap=${gap}ms rapid=${isRapidReload} retryPending=${isRetryPendingRef.current} retry#=${autoRetryCountRef.current}`);
+    lastLoadStartUrlRef.current = url;
+    console.log(`[WebView] loadStart url=${url.slice(-30)} gap=${gap}ms sameUrl=${isSameUrl} rapid=${isRapidReload} retry#=${autoRetryCountRef.current}`);
     setAutoReloadCount((count) => {
       const next = isRapidReload ? count + 1 : 1;
       if (next >= MAX_AUTO_RELOADS) {
-        console.warn(`[WebView] loop detectado (${next} reloads rápidos) — exibindo erro`);
+        console.warn(`[WebView] loop detectado (${next} reloads rápidos em ${url}) — exibindo erro`);
         setHasError(true);
       }
       return next;
