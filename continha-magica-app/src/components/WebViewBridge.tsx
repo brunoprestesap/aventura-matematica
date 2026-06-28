@@ -111,6 +111,10 @@ export function WebViewBridge() {
   const isRetryPendingRef = useRef(false);
   const lastLoadStartRef = useRef<number>(0);
   const lastLoadStartUrlRef = useRef<string>("");
+  // Quando PAGE_READY chega ANTES do onLoadStart (Next.js prefetch renderiza
+  // o componente antes de a URL mudar no WebView), este flag evita que o
+  // onLoadStart seguinte reactive o LoadingScreen desnecessariamente.
+  const pageReadyBeforeLoadRef = useRef(false);
   const { saveItem, removeItem, clearItems, loadAllItems } = useWebViewStorage();
   const { loginWithGoogle } = useGoogleAuth();
 
@@ -182,6 +186,9 @@ export function WebViewBridge() {
             autoRetryCountRef.current = 0;
             setAutoReloadCount(0);
           }
+          // Marca que PAGE_READY chegou; se o onLoadStart vier depois (race
+          // condition do prefetch), ele não deve reativar o LoadingScreen.
+          pageReadyBeforeLoadRef.current = true;
         }
       } catch {
         // Ignora mensagens não-JSON vindas do PWA (ex: logs de analytics)
@@ -222,6 +229,17 @@ export function WebViewBridge() {
   }, []);
 
   const handleLoadStart = useCallback((event: { nativeEvent: { url: string } }) => {
+    // Se PAGE_READY chegou antes (Next.js prefetch), o conteúdo já está
+    // renderizado — não reactive o LoadingScreen para esta navegação.
+    if (pageReadyBeforeLoadRef.current) {
+      pageReadyBeforeLoadRef.current = false;
+      const url = event.nativeEvent.url;
+      const now = Date.now();
+      lastLoadStartRef.current = now;
+      lastLoadStartUrlRef.current = url;
+      console.log(`[WebView] loadStart pós-PAGE_READY — ignorando loading indicator (url=…${url.slice(-30)})`);
+      return;
+    }
     setIsLoading(true);
     // Inicia timeout: se onLoadEnd não chegar em LOAD_TIMEOUT_MS, exibe erro.
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
