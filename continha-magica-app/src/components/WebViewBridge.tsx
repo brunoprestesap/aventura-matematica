@@ -194,6 +194,7 @@ export function WebViewBridge() {
   // servidor e instabilidade de rede (3s → 5s → 8s → 12s → 18s).
   const scheduleAutoRetry = useCallback((onGiveUp: () => void) => {
     if (autoRetryCountRef.current >= MAX_AUTO_RETRIES) {
+      console.warn(`[WebView] máximo de retries (${MAX_AUTO_RETRIES}) atingido — exibindo erro`);
       isRetryPendingRef.current = false;
       onGiveUp();
       return;
@@ -201,7 +202,9 @@ export function WebViewBridge() {
     const delay = RETRY_DELAYS_MS[autoRetryCountRef.current] ?? 5000;
     autoRetryCountRef.current += 1;
     isRetryPendingRef.current = true;
+    console.log(`[WebView] agendando retry #${autoRetryCountRef.current} em ${delay}ms`);
     retryTimeoutRef.current = setTimeout(() => {
+      console.log("[WebView] executando retry — recarregando WebView");
       isRetryPendingRef.current = false;
       webViewRef.current?.reload();
     }, delay);
@@ -212,6 +215,7 @@ export function WebViewBridge() {
     // Inicia timeout: se onLoadEnd não chegar em LOAD_TIMEOUT_MS, exibe erro.
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
     loadTimeoutRef.current = setTimeout(() => {
+      console.warn("[WebView] timeout de carregamento atingido");
       setIsLoading(false);
       setHasError(true);
     }, LOAD_TIMEOUT_MS);
@@ -220,11 +224,14 @@ export function WebViewBridge() {
     // (ex: o usuário voltou ao app, o trial fez um reload único após compra)
     // resetam o contador e não são tratados como loop.
     const now = Date.now();
-    const isRapidReload = now - lastLoadStartRef.current < RELOAD_LOOP_WINDOW_MS;
+    const gap = now - lastLoadStartRef.current;
+    const isRapidReload = gap < RELOAD_LOOP_WINDOW_MS;
     lastLoadStartRef.current = now;
+    console.log(`[WebView] loadStart gap=${gap}ms rapid=${isRapidReload} retryPending=${isRetryPendingRef.current} retry#=${autoRetryCountRef.current}`);
     setAutoReloadCount((count) => {
       const next = isRapidReload ? count + 1 : 1;
       if (next >= MAX_AUTO_RELOADS) {
+        console.warn(`[WebView] loop detectado (${next} reloads rápidos) — exibindo erro`);
         setHasError(true);
       }
       return next;
@@ -235,6 +242,7 @@ export function WebViewBridge() {
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
     // Mantém o spinner visível se um retry está prestes a acontecer — evita
     // que o usuário veja a tela de erro nativa do Android durante a espera.
+    console.log(`[WebView] loadEnd retryPending=${isRetryPendingRef.current} retry#=${autoRetryCountRef.current}`);
     if (!isRetryPendingRef.current) {
       setIsLoading(false);
       // Carga bem-sucedida: reseta contadores para garantir retries completos
@@ -250,9 +258,12 @@ export function WebViewBridge() {
   }, []);
 
   // Recupera o WebView quando o processo de conteúdo morre por pressão de
-  // memória (WKWebView no iOS) ou é encerrado pelo SO (Android). Sem isso o
-  // app ficaria com tela branca permanente ou crasharia.
+  // memória (WKWebView no iOS) ou é encerrado pelo SO (Android). Sem o
+  // setIsLoading(true) imediato, o fundo branco padrão do WebView ficaria
+  // exposto até handleLoadStart disparar (podendo demorar centenas de ms).
   const handleProcessTerminated = useCallback(() => {
+    console.warn("[WebView] processo de renderização encerrado — recarregando");
+    setIsLoading(true);
     webViewRef.current?.reload();
   }, []);
 
@@ -323,5 +334,8 @@ export function WebViewBridge() {
 }
 
 const styles = StyleSheet.create({
-  webView: { flex: 1 },
+  // backgroundColor garante que o WebView não mostre branco durante qualquer
+  // gap entre isLoading=false e o primeiro paint da página (processo morto,
+  // redirect, etc.). A cor combina com o tema escuro do app e da LoadingScreen.
+  webView: { flex: 1, backgroundColor: "#0C1A19" },
 });
