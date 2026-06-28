@@ -6,7 +6,7 @@ import Constants from "expo-constants";
 
 const WEB_APP_URL =
   (Constants.expoConfig?.extra?.webAppUrl as string | undefined) ??
-  "https://continhamagica.vercel.app";
+  "https://continhamagica.com.br";
 
 // Necessário para finalizar sessões de auth pendentes no Android.
 WebBrowser.maybeCompleteAuthSession();

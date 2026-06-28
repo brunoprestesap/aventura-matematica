@@ -45,7 +45,7 @@
       "expo-secure-store"
     ],
     "extra": {
-      "webAppUrl": "https://continhamagica.vercel.app",
+      "webAppUrl": "https://continhamagica.com.br",
       "router": {},
       "eas": {
         "projectId": "f542064c-a0f8-4ff5-af33-7c1f0a5efaa0"

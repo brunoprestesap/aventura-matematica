@@ -7,11 +7,14 @@ import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { ErrorScreen } from "@/components/ErrorScreen";
 
-// URL única definida em app.json (extra.webAppUrl); o fallback evita crash
+// URL base definida em app.json (extra.webAppUrl); o fallback evita crash
 // caso a config esteja ausente em algum ambiente de build.
-const WEB_APP_URL =
+const WEB_APP_BASE_URL =
   (Constants.expoConfig?.extra?.webAppUrl as string | undefined) ??
-  "https://continhamagica.vercel.app";
+  "https://continhamagica.com.br";
+
+// O app nativo inicia diretamente na tela do jogo, pulando a landing page.
+const WEB_APP_URL = `${WEB_APP_BASE_URL}/jogar`;
 
 /*
   Script injetado ANTES do carregamento do conteúdo da página (BeforeContentLoaded).
