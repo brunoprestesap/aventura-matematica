@@ -107,8 +107,11 @@ export default async function RootLayout({
         {process.env.NODE_ENV === "production" ? (
           <Script id="register-sw" strategy="afterInteractive">
             {`
-              // Registra o service worker do Continha Mágica (apenas em produção)
-              if ('serviceWorker' in navigator) {
+              // Registra o service worker do Continha Mágica (apenas em produção).
+              // No shell nativo (WebView), o SW não é necessário e pode interceptar
+              // navegações internas causando timeouts. O bridge script define
+              // window.__NATIVE_APP__ = true antes do conteúdo carregar.
+              if ('serviceWorker' in navigator && !window.__NATIVE_APP__) {
                 window.addEventListener('load', () => {
                   navigator.serviceWorker.register('/sw.js').catch(() => {});
                 });
